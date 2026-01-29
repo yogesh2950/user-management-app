@@ -17,7 +17,6 @@ class UsersController < ApplicationController
       render :create, status: :created
     else
       render json: @user.errors, status: :unprocessable_entity
-
     end
   end
 
@@ -25,7 +24,7 @@ class UsersController < ApplicationController
     @user = User.find(params[:id])
 
     if @user.update(user_params)
-      render json: {message: "User updated successfully"}, status: :ok
+      render :update, status: :ok
     else
       render json: {message: "Error"}, status: :unprocessable_entity
     end

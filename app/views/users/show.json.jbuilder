@@ -4,9 +4,4 @@
 # end
 
 
-# json @users, partial: 'users/user', as: :user
-# json.users do
-#   json.array! @users, partial: 'users/user', as: :user
-# end
-
-json.partial! 'users/user', as: :user
+json.partial! 'users/user', user: @user
