@@ -1,7 +1,22 @@
 class ApplicationController < ActionController::Base
-  # Only allow modern browsers supporting webp images, web push, badges, import maps, CSS nesting, and CSS :has.
-  allow_browser versions: :modern
+  # skip_before_action :verify_authenticity_token
+  before_action :authorize_request
 
-  # Changes to the importmap will invalidate the etag for HTML responses
-  stale_when_importmap_changes
+  private
+
+  def authorize_request
+    header = request.header['Authorization']
+    token = header.split(' ').last if header
+
+    decoded = JsonWebToken.decode(token)
+
+    if decoded == :expired
+      render json: {message: "Token expired"}, status: :unprocessable_entity
+    elsif decoded.nil?
+      render json: {message: "Invalid Token"}, status: :unauthorized
+    else
+      @current_user = User.find(decoded[:user_id])
+    end
+  end
+
 end
