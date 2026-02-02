@@ -26,5 +26,23 @@ Rails.application.routes.draw do
   patch "/users/:id", to: "users#update"
 
   delete "/users/:id", to: "users#destroy"
+
+
+  get "/tickets", to: "tickets#index"
+
+  get "/tickets/:id", to: "tickets#show"
+
+  post "/tickets", to: "tickets#create"
+
+  patch "/tickets/:id", to: "tickets#update"
+
+  delete "/tickets/:id", to: "tickets#destroy"
+
+
+
+  # resources :users do
+  #   resources :tickets
+
+  # end
   # resources :users
 end

@@ -10,7 +10,18 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_30_045853) do
+ActiveRecord::Schema[8.1].define(version: 2026_02_02_121629) do
+  create_table "tickets", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.text "description"
+    t.integer "priority"
+    t.integer "status"
+    t.string "title"
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["user_id"], name: "index_tickets_on_user_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "city"
     t.datetime "created_at", null: false
@@ -20,4 +31,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_30_045853) do
     t.string "password_digest"
     t.datetime "updated_at", null: false
   end
+
+  add_foreign_key "tickets", "users"
 end
