@@ -3,7 +3,7 @@ class User < ApplicationRecord
 
   validates :name, presence: true
   
-  validates :password, presence: true, length: { in: 6..15 }
+  validates :password, presence: true, length: { in: 6..15 }, on: :create
 
   validates :email, format: {:with => /\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\z/i}, presence: true, uniqueness: true
 

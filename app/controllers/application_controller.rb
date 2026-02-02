@@ -5,8 +5,8 @@ class ApplicationController < ActionController::Base
   private
 
   def authorize_request
-    header = request.header['Authorization']
-    token = header.split(' ').last if header
+    headers = request.headers['Authorization']
+    token = headers.split(' ').last if headers
 
     decoded = JsonWebToken.decode(token)
 
@@ -16,6 +16,7 @@ class ApplicationController < ActionController::Base
       render json: {message: "Invalid Token"}, status: :unauthorized
     else
       @current_user = User.find(decoded[:user_id])
+      pp @current_user
     end
   end
 
