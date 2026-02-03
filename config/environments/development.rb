@@ -79,10 +79,7 @@ Rails.application.configure do
   config.hosts.clear
 
 
-#   config.hosts << "localhost"
-# config.hosts << "127.0.0.1"
-# config.hosts << "192.168.1.10" # your IP if needed
-
-
-
+  #   config.hosts << "localhost"
+  # config.hosts << "127.0.0.1"
+  # config.hosts << "192.168.1.10" # your IP if needed
 end

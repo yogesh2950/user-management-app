@@ -32,7 +32,10 @@ gem "solid_queue"
 gem "solid_cable"
 
 # Ruby LSP
-gem 'ruby-lsp', group: :development
+gem "ruby-lsp", group: :development
+
+gem "ruby-lsp-rails"
+
 
 # Reduces boot times through caching; required in config/boot.rb
 gem "bootsnap", require: false

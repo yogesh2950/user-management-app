@@ -4,4 +4,4 @@
 # end
 
 
-json.partial! "users/user", user: @user
+json.partial! "tickets/ticket", ticket: @ticket

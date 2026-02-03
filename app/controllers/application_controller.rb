@@ -5,19 +5,22 @@ class ApplicationController < ActionController::Base
   private
 
   def authorize_request
-    headers = request.headers['Authorization']
-    token = headers.split(' ').last if headers
+    headers = request.headers["Authorization"]
+    token = headers.split(" ").last if headers
 
     decoded = JsonWebToken.decode(token)
 
     if decoded == :expired
-      render json: {message: "Token expired"}, status: :unprocessable_entity
+      render json: { message: "Token expired" }, status: :unprocessable_entity
     elsif decoded.nil?
-      render json: {message: "Invalid Token"}, status: :unauthorized
+      render json: { message: "Invalid Token" }, status: :unauthorized
     else
       @current_user = User.find(decoded[:user_id])
-      pp @current_user
+      # pp @current_user
     end
   end
 
+  def current_user
+    @current_user
+  end
 end

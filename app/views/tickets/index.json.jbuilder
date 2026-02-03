@@ -1,15 +1,15 @@
 # app/views/users/index.json.jbuilder
-if @users.present?
+if @show_tickets.present?
   json.status true
-  json.total_count @users.count
-  json.users do
-    json.array! @users, partial: "users/user", as: :user
+  json.total_count @show_tickets.count
+  json.ticket do
+    json.array! @show_tickets, partial: "tickets/ticket", as: :ticket
     # json.array! instanceVariableNameFromController, partial: "usersView/partialName", as: :localVariableName
   end
 else
   json.status true
   json.total_count 0
-  json.users []
+  json.ticket []
 end
 
 

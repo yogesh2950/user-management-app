@@ -1,7 +1,7 @@
 class Ticket < ApplicationRecord
   belongs_to :user
 
-  
+
   enum :status, {
     open: 0,
     pending: 1,

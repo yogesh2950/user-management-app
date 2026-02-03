@@ -17,6 +17,7 @@ Rails.application.routes.draw do
   post "/signup", to: "users#create"
   post "/login", to: "users#login"
 
+
   get "/users", to: "users#index"
 
   get "/users/:id", to: "users#show"
@@ -26,6 +27,19 @@ Rails.application.routes.draw do
   patch "/users/:id", to: "users#update"
 
   delete "/users/:id", to: "users#destroy"
+
+
+  # get "/tickets/open", to: "tickets#open"
+
+  # get "/tickets/closed", to: "tickets#closed"
+
+  # get "/tickets/pending", to: "tickets#pending"
+
+  # get "/tickets/onhold", to: "tickets#onhold"
+
+  # get "/tickets/solved", to: "tickets#solved"
+
+  # get "/tickets/reopened", to: "tickets#reopened"
 
 
   get "/tickets", to: "tickets#index"
