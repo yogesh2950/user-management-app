@@ -14,12 +14,13 @@ class UsersController < ApplicationController
 
   def create
     pp "============================================"
-    pp user_params
+    # pp user_params
     @user = User.new(name: user_params[:name], email: user_params[:email], password: user_params[:password], password_confirmation: user_params[:password_confirmation], mobile_no: user_params[:mobile_no], city: user_params[:city])
 
     # @user = User.new(user_params)
-    pp "=====user#{@user}==============="
+    # pp "=====user#{@user}==============="
     if @user.save
+      pp @user
       render json: @user, status: :created
     else
       render json: @user.errors.full_messages, status: :unprocessable_entity
@@ -27,9 +28,13 @@ class UsersController < ApplicationController
   end
 
   def login
+    pp login_params
     user = User.find_by(email: login_params[:email])
 
-    if user&.authenticate(params[:password])
+    pp"==========after user=" 
+    pp user
+    pp login_params[:password]
+    if user&.authenticate(login_params[:password])
       token = JsonWebToken.encode(user_id: user.id)
       # pp token
       render json: {
@@ -81,10 +86,10 @@ class UsersController < ApplicationController
   end
 
   def login_params
-    params.require(:user).permit(:email, :password)
+    params.permit(:email, :password)
   end
 
   def user_params
-    params.require(:user).permit(:name, :email, :password, :password_confirmation, :mobile_no, :city)
+    params.permit(:name, :email, :password, :password_confirmation, :mobile_no, :city)
   end
 end
