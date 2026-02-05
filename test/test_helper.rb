@@ -1,6 +1,7 @@
 ENV["RAILS_ENV"] ||= "test"
 require_relative "../config/environment"
 require "rails/test_help"
+require "json"
 
 module ActiveSupport
   class TestCase
@@ -8,8 +9,18 @@ module ActiveSupport
     def set_user
       post "/login",
       params: { email: "yogeshk@gmail.com", password: "1234567" }
-      pp "Response body #{response.body}"
-      # pp response.body
+      # pp "Response body #{response.body}"
+      # # pp response.body
+      # # parsed_data = JSON.parse(response.body)
+      # # pp parsed_data
+      # # @token = response_body["token"]
+      # # @token = JSON.parse(response.body)["token"]
+      # # pp @token
+    end
+
+    def token
+      set_user
+      token = JSON.decode(response.body)["token"]
     end
 
     # Run tests in parallel with specified workers
