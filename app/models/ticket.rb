@@ -10,9 +10,9 @@ class Ticket < ApplicationRecord
     closed: 4,
     reopened: 5
     # new: 6
-  }, default: :open
+  }
 
-
+  # validates :status, presence: true
   validates :title, presence: true
   validates :priority, presence: true
   validates :user_id, presence: true

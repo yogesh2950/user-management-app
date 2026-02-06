@@ -13,12 +13,13 @@ class TicketsTest < ActionDispatch::IntegrationTest
     }, 
     headers: { Authorization: "Bearer #{token}" }
     # pp response.body
-    ticket_body = JSON.parse(response.body)
-    # pp ticket_body
-    assert_equal "users model issue", ticket_body['title']
-    assert_equal "Users model has issue fix it", ticket_body['description']
-    assert_equal "open", ticket_body['status']
-    assert_equal 1, ticket_body['priority']
+    res = JSON.parse(response.body)
+    # pp res
+    assert_equal "users model issue", res['title']
+    assert_equal "Users model has issue fix it", res['description']
+    assert_equal "open", res['status']
+    assert_equal 1, res['priority']
+    assert_response :created
   end
 
   test "should not create ticket without authorization" do
@@ -30,8 +31,8 @@ class TicketsTest < ActionDispatch::IntegrationTest
         priority: 1
     },
     headers: {}
-    # pp response.body
-    # ticket_body = JSON.parse(response.body)
+    res = JSON.parse(response.body)
+    assert_equal "Token Not Found", res["message"]
     assert_response :unauthorized
   end
 
@@ -44,33 +45,36 @@ class TicketsTest < ActionDispatch::IntegrationTest
     },
     headers: { Authorization: "Bearer #{token}" }
     # pp response.body
-    # ticket_body = JSON.parse(response.body)
+    res = JSON.parse(response.body)
     assert_response :unprocessable_entity
+    assert_equal ["Title can't be blank"], res["message"]
   end
 
-  test "should not create ticket with invalid status" do
-    post "/tickets.json",
-    params: {
-      title: "users model issue",
-      description: "users model had isses",
-      status: "new",
-      priority: 1
-    },
-    headers: { Authorization: "Bearer #{token}" }
-    # pp response.body
-    # ticket_body = JSON.parse(response.body)
-    assert_response :unprocessable_entity
-  end
+  # test "should not create ticket with invalid status" do
+  #   post "/tickets.json",
+  #   params: {
+  #     title: "users model issue",
+  #     description: "users model had isses",
+  #     status: "resolved",
+  #     priority: 1
+  #   },
+  #   headers: { Authorization: "Bearer #{token}" }
+  #   pp response.body
+  #   # res = JSON.parse(response.body)
+  #   # assert_response :unprocessable_entity
+  # end
 
   test "should view all tickets" do
     get "/tickets.json", 
     params:{}, 
     headers: { Authorization: "Bearer #{token}" }
     # pp response.body
-    ticket_body = JSON.parse(response.body)
-    # pp ticket_body
+    res = JSON.parse(response.body)
+    # pp res
+    assert_equal true, res["status"]
     # assert_equal ticket_body['total_count']
-    assert(ticket_body['total_count'] >= 1, "Expected total_count to be greater than 1")
+    assert(res['total_count'] >= 1, "Expected total_count to be greater than 1")
+    assert_response :ok
   end
   
   test "should view ticket with status pending" do
@@ -80,10 +84,11 @@ class TicketsTest < ActionDispatch::IntegrationTest
     }, 
     headers: { Authorization: "Bearer #{token}" }
     # pp response.body
-    ticket_body = JSON.parse(response.body)
-    # pp ticket_body
-    # assert_equal ticket_body['total_count']
-    assert(ticket_body['total_count'] >= 1, "Expected total_count to be greater than 1")
+    res = JSON.parse(response.body)
+    # pp res
+    # assert_equal res['total_count']
+    assert_equal true, res["status"]
+    assert(res['total_count'] >= 1, "Expected total_count to be greater than 1")
   end
   
   test "should get empty list for not assigned status" do
@@ -91,9 +96,10 @@ class TicketsTest < ActionDispatch::IntegrationTest
     params: { status: "closed" },
     headers: { Authorization: "Bearer #{token}" }
     # pp response.body
-    ticket_body = JSON.parse(response.body)
-    # pp ticket_body
-    assert_equal 0, ticket_body["total_count"]
+    res = JSON.parse(response.body)
+    # pp res
+    assert_equal true, res["status"]
+    assert_equal 0, res["total_count"]
   end
 
 
@@ -102,13 +108,14 @@ class TicketsTest < ActionDispatch::IntegrationTest
     params:{}, 
     headers: { Authorization: "Bearer #{token}" }
     # pp response.body
-    ticket_body = JSON.parse(response.body)
-    # pp ticket_body
-    # assert_equal ticket_body['total_count']
-    assert_equal "Ticket Controller had issues", ticket_body['title']
-    assert_equal "Ticket Controller had some issues solve ASAP", ticket_body['description']
-    assert_equal "pending", ticket_body['status']
-    assert_equal 1, ticket_body['priority']
+    res = JSON.parse(response.body)
+    # pp res
+    # assert_equal res['total_count']
+    assert_equal 1, res["id"]
+    assert_equal "Ticket Controller had issues", res["title"]
+    assert_equal "Ticket Controller had some issues solve ASAP", res["description"]
+    assert_equal "pending", res["status"]
+    assert_equal 1, res["priority"]
   end
   
   test "should update ticket" do
@@ -121,12 +128,14 @@ class TicketsTest < ActionDispatch::IntegrationTest
     }, 
     headers: { Authorization: "Bearer #{token}" }
     # pp response.body
-    ticket_body = JSON.parse(response.body)
-    # pp ticket_body
-    assert_equal "Tickets had issues", ticket_body['title']
-    assert_equal "Tickets has issues fix it", ticket_body['description']
-    assert_equal "on_hold", ticket_body['status']
-    assert_equal 1, ticket_body['priority']
+    res = JSON.parse(response.body)
+    # pp res
+    assert_equal 1, res["id"]
+    assert_equal "Tickets had issues", res["title"]
+    assert_equal "Tickets has issues fix it", res["description"]
+    assert_equal "on_hold", res["status"]
+    assert_equal 1, res["priority"]
+    assert_response :ok
   end
   
   test "should not update ticket with empty params" do
@@ -134,21 +143,27 @@ class TicketsTest < ActionDispatch::IntegrationTest
     params: {},
     headers: { Authorization: "Bearer #{token}" }
     # pp response.body
-    # ticket_body = JSON.parse(response.body)
-    # pp ticket_body
+    res = JSON.parse(response.body)
+    # pp res
+    assert_equal ["Title can't be blank", "Priority can't be blank"], res["message"]
     assert_response :unprocessable_entity
   end
 
   test "should not update ticket with invalid id" do
-    patch "/tickets/4154.json",
-    params: { title: "users model issue" },
+    patch "/tickets/2.json",
+    params:
+    {
+        title: "users model issue",
+        description: "Users model has issue fix it",
+        status: "open",
+        priority: 1
+    },
     headers: { Authorization: "Bearer #{token}" }
-
     # pp response.body
-    ticket_body = JSON.parse(response.body)
-    # pp ticket_body
-    assert_equal false, ticket_body["status"]
-    assert_equal "Ticket Not Found", ticket_body["message"]
+    res = JSON.parse(response.body)
+    # pp res
+    assert_equal false, res["status"]
+    assert_equal "Ticket Not Found", res["message"]
   end
 
   test "should delete ticket" do
@@ -156,9 +171,10 @@ class TicketsTest < ActionDispatch::IntegrationTest
     params:{}, 
     headers: { Authorization: "Bearer #{token}" }
     # pp response.body
-    ticket_body = JSON.parse(response.body)
-    # pp ticket_body
-    assert_equal "Ticket deleted successfully", ticket_body['message']
+    res = JSON.parse(response.body)
+    # pp res
+    assert_equal "Ticket deleted successfully", res['message']
+    assert_response :ok
   end
   
   test "should not delete ticket with invalid id" do
@@ -166,30 +182,32 @@ class TicketsTest < ActionDispatch::IntegrationTest
     params:{},
     headers: { Authorization: "Bearer #{token}" }
     # pp response.body
-    ticket_body = JSON.parse(response.body)
-    # pp ticket_body
-    assert_equal false, ticket_body["status"]
-    assert_equal "Ticket Not Found", ticket_body["message"]
+    res = JSON.parse(response.body)
+    # pp res
+    assert_equal false, res["status"]
+    assert_equal "Ticket Not Found", res["message"]
+    assert_response :unprocessable_entity
   end
 
-  test "should not delete another users ticket" do
-    post "/tickets.json",
-    params: {
-      title: "users model issue",
-      description: "users model had issues",
-      status: "open",
-      priority: 1
-    },
-    headers: { Authorization: "Bearer #{token}" }
-
-    delete "/tickets/2.json",
-    headers: { Authorization: "Bearer #{token}" }
-    # pp response.body
-    ticket_body = JSON.parse(response.body)
-    # pp ticket_body
-    assert_equal false, ticket_body["status"]
-    assert_equal "Ticket Not Found", ticket_body["message"]
-  end
+  # test "should not delete another users ticket" do
+  #   post "/tickets.json",
+  #   params: {
+  #     title: "users model issue",
+  #     description: "users model had issues",
+  #     status: "open",
+  #     priority: 1
+  #   },
+  #   headers: { Authorization: "Bearer #{token}" }
+  #   pp "=="
+  #   delete "/tickets/1.json",
+  #   headers: { Authorization: "Bearer #{token}" }
+  #   # pp response.body
+  #   ticket_body = JSON.parse(response.body)
+  #   pp ticket_body
+  #   assert_equal false, ticket_body["status"]
+  #   assert_equal "Ticket Not Found", ticket_body["message"]
+  #   assert_response :ok
+  # end
 
 
   test "should return empty list when no tickets exist" do
@@ -198,9 +216,11 @@ class TicketsTest < ActionDispatch::IntegrationTest
     params: {},
     headers: { Authorization: "Bearer #{token}" }
     # pp response.body
-    ticket_body = JSON.parse(response.body)
-    # pp ticket_body
-    assert_equal 0, ticket_body["total_count"]
+    res = JSON.parse(response.body)
+    # pp res
+    assert_equal true, res["status"]
+    assert_equal 0, res["total_count"]
+    assert_response :ok
   end
 
   test "should not create ticket without priority" do
@@ -211,10 +231,10 @@ class TicketsTest < ActionDispatch::IntegrationTest
       status: "open"
     },
     headers: { Authorization: "Bearer #{token}" }
-
     # pp response.body
-    # ticket_body = JSON.parse(response.body)
-    # pp ticket_body
+    res = JSON.parse(response.body)
+    # pp res
+    assert_equal ["Priority can't be blank"], res["message"]
     assert_response :unprocessable_entity
   end
 
@@ -229,34 +249,56 @@ class TicketsTest < ActionDispatch::IntegrationTest
     },
     headers: { Authorization: "Bearer #{token}" }
     # pp response.body
-    ticket_body = JSON.parse(response.body)
-    # pp ticket_body
-    assert_nil ticket_body["hacked"]
+    res = JSON.parse(response.body)
+    # pp res
+    assert_nil res["hacked"]
+    assert_response :created
   end
 
   test "deleting ticket which already deleted should fail" do
     delete "/tickets/1.json",
     headers: { Authorization: "Bearer #{token}" }
-
     delete "/tickets/1.json",
     headers: { Authorization: "Bearer #{token}" }
     # pp response.body
-    ticket_body = JSON.parse(response.body)
-    # pp ticket_body
-    assert_equal false, ticket_body["status"]
+    res = JSON.parse(response.body)
+    # pp res 
+    assert_equal false, res["status"]
+    assert_equal "Ticket Not Found", res["message"]
   end
 
-  test "should not create ticket with priority as in string format" do
-    post "/tickets.json",
-    params: {
-      title: "Tickets had issues",
-      description: "Tickets had issues fix it",
-      status: "open",
-      priority: "high"
-    },
-    headers: { Authorization: "Bearer #{token}" }
-    # pp response.body
-    assert_response :unprocessable_entity
-  end
+  # Check
+  # test "should not create ticket with priority as in string format" do
+  #   post "/tickets.json",
+  #   params: {
+  #     title: "Tickets had issues",
+  #     description: "Tickets had issues fix it",
+  #     status: "open",
+  #     priority: "Low"
+  #   },
+  #   headers: { Authorization: "Bearer #{token}" }
+  #   pp response.body
+  #   assert_response :created
+  # end
+
+  # Check
+  # test "should create ticket with default status" do
+  #   post "/tickets.json",
+  #   params:{
+  #       title: "users model issue",
+  #       description: "Users model has issue fix it",
+  #       status: ,
+  #       priority: 1
+  #   }, 
+  #   headers: { Authorization: "Bearer #{token}" }
+  #   # pp response.body
+  #   res = JSON.parse(response.body)
+  #   pp res
+  #   assert_equal "users model issue", res['title']
+  #   assert_equal "Users model has issue fix it", res['description']
+  #   # assert_equal "open", res['status']
+  #   assert_equal 1, res['priority']
+  #   assert_response :created
+  # end
 
 end

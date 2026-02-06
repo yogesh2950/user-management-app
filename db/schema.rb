@@ -10,12 +10,12 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_02_02_121629) do
+ActiveRecord::Schema[8.1].define(version: 2026_02_06_105259) do
   create_table "tickets", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.text "description"
     t.integer "priority"
-    t.integer "status"
+    t.integer "status", default: 0
     t.string "title"
     t.datetime "updated_at", null: false
     t.integer "user_id", null: false
@@ -26,6 +26,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_02_121629) do
     t.string "city"
     t.datetime "created_at", null: false
     t.string "email"
+    t.boolean "is_active", default: true
     t.string "mobile_no"
     t.string "name"
     t.string "password_digest"

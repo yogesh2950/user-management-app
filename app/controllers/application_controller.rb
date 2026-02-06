@@ -13,7 +13,7 @@ class ApplicationController < ActionController::Base
     if decoded == :expired
       render json: { message: "Token expired" }, status: :unprocessable_entity
     elsif decoded.nil?
-      render json: { message: "Invalid Token" }, status: :unauthorized
+      render json: { message: "Token Not Found" }, status: :unauthorized
     else
       @current_user = User.find(decoded[:user_id])
       # pp @current_user
