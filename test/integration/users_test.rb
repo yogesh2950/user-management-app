@@ -110,7 +110,7 @@ class UsersTest < ActionDispatch::IntegrationTest
     assert_response :unprocessable_entity
   end
 
-  test "should not login user without valid password" do 
+  test "should not login user without password" do 
     post "/login.json", 
     params: { email: "yogeshk@gmail.com" } 
     # headers: { Authorization: "Bearer #{token}"}
@@ -118,7 +118,113 @@ class UsersTest < ActionDispatch::IntegrationTest
     # pp response.body
     users = JSON.parse(response.body)
     assert_equal "Invalid email or password", users['message']
-    # assert_response :unprocessable_entity
+    assert_response :unauthorized
   end
 
+  test "should not login user with invalid email" do
+    post "/login.json", params: {
+      email: "yogeshgmail.com", password: "1234567"
+    }
+    # headers: { Authorization: "Bearer #{token}"}
+    
+    # pp response.body
+    users = JSON.parse(response.body)
+    assert_equal "Invalid email or password", users['message']
+    assert_response :unauthorized
+  end
+
+  test "should not login user without login_params" do
+    post "/login.json", params: {}
+    # headers: { Authorization: "Bearer #{token}"}
+    
+    # pp response.body
+    users = JSON.parse(response.body)
+    assert_equal "Invalid email or password", users['message']
+    assert_response :unauthorized
+  end
+
+  test "should not create user with duplicate email" do
+    post "/users.json", params: {
+      name: "yogesh sutar",
+      email: "yogeshk@gmail.com",
+      password: "1234567",
+      password_confirmation: "1234567",
+      mobile_no: "9876543210",
+      city: "pune"
+    }
+    # headers: { Authorization: "Bearer #{token}"}
+
+    users = JSON.parse(response.body)
+    assert_equal "Some Values are missing | Require all values", users["message"]
+    assert_response :unprocessable_entity
+  end
+
+  test "should not create user without mobile_no" do
+    post "/users.json", params: {
+      name: "yogesh sutar",
+      email: "yogeshk@gmail.com",
+      password: "1234567",
+      password_confirmation: "1234567",
+      mobile_no: "",
+      city: "pune"
+    }
+    # headers: { Authorization: "Bearer #{token}"}
+
+    users = JSON.parse(response.body)
+    assert_equal "Some Values are missing | Require all values", users["message"]
+    assert_response :unprocessable_entity
+  end
+
+  test "should not get all users without token" do
+    get "/users.json", params: {},
+    # headers: { Authorization: "Bearer #{token}"}
+
+    # users = JSON.parse(response.body)
+
+    assert_response :unauthorized
+  end
+
+  test "should print user not found for invalid user_id" do
+    get "/users/154.json", params: {},
+    headers: { Authorization: "Bearer #{token}" }
+
+    users = JSON.parse(response.body)
+
+    assert_equal false, users["status"]
+    assert_equal "User Not Found", users["message"]
+  end
+
+  test "token should not be nil after successful login" do
+    post "/login",
+    params: { email: "yogeshk@gmail.com", password: "1234567" }
+    # pp "Response body #{response.body}"
+    # # pp response.body
+    # # parsed_data = JSON.parse(response.body)
+    # # pp parsed_data
+    # # @token = response_body["token"]
+    # # @token = JSON.parse(response.body)["token"]
+    # # pp @token
+
+    token = JSON.parse(response.body)["token"]
+
+    assert_not_nil token
+  end
+
+  test "should not access deleted user" do
+    delete "/users/1.json", params:{},
+    headers: { Authorization: "Bearer #{token}" }
+
+    # pp response.body
+
+    get "/users/1.json", params:{},
+    headers: { Authorization: "Bearer #{token}" }
+
+    # pp response.body
+    users = JSON.parse(response.body)
+
+    assert_equal "User Not Found", users["message"]
+    assert_equal false, users["status"]
+  end
+
+  # get all invalid token
 end

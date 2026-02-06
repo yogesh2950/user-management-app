@@ -1,6 +1,7 @@
 class UsersController < ApplicationController
   skip_before_action :verify_authenticity_token # this is to remove csrf token missing warning
   before_action :set_user, only: [ :show, :update, :destroy ]
+  before_action :check_valid_user, except: [:index, :create, :login]
   skip_before_action :authorize_request, only: [ :create, :login ]
 
   def index
@@ -70,6 +71,7 @@ class UsersController < ApplicationController
     @user = User.find_by(id: params[:id])
     unless @user.present?
       render json: { status: false, message: "User Not Found" }
+      return
     end
   end
 
@@ -83,5 +85,12 @@ class UsersController < ApplicationController
 
   def user_params
     params.permit(:name, :email, :password, :password_confirmation, :mobile_no, :city)
+  end
+
+  def check_valid_user
+    unless current_user.id == @user.id
+      render json: { message: "You are not authorized user." }, status: :forbidden
+      return
+    end
   end
 end
