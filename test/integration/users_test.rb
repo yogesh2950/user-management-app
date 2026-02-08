@@ -66,7 +66,7 @@ class UsersTest < ActionDispatch::IntegrationTest
   end
 
   test "should update the user by id" do 
-    patch "/users/1", params: {
+    patch "/users/1.json", params: {
         name: "yogesh sutar",
         email: "yogeshk@gmail.com",
         mobile_no: 3455689404,
@@ -222,5 +222,28 @@ class UsersTest < ActionDispatch::IntegrationTest
     # pp res
     assert_equal "Token Not Found", res["message"]
     assert_nil res["users"]
+  end
+
+  test "should not allowed in_active user to login" do
+    post "/users", 
+    params:{
+      name: "yogesh",
+      email: "yogeshmm1@gmail.com",
+      password: "1234567",
+      password_confirmation: "1234567",
+      is_active: false,
+      mobile_no: 3456789013,
+      city: "pune"
+    }
+
+    post "/login.json", params:{
+      email: "yogeshmm1@gmail.com",
+      password: "1234567"
+    }
+
+    res = JSON.parse(response.body)
+    # pp res
+    assert_equal "You're not allowed to perform this action!", res["message"]
+    assert_response :forbidden
   end
 end

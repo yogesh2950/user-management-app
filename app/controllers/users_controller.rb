@@ -30,10 +30,18 @@ class UsersController < ApplicationController
   def login
     # pp login_params
 
-    # unless
     user = User.find_by(email: login_params[:email])
     # pp"==========after user=" 
     # pp user
+
+    # Check if in_active user tries to login
+    unless user.id == false
+      render json: {
+        message: "You're not allowed to perform this action!"
+      }, status: :forbidden
+      return
+    end
+
     # pp login_params[:password]
 
     if user&.authenticate(login_params[:password])
@@ -62,7 +70,7 @@ class UsersController < ApplicationController
   end
 
   def destroy
-    # @user = User.find(params[:id])
+    
     if @user.destroy
       render json: { message: "User deleted successfully" }, status: :ok
     else
