@@ -2,6 +2,12 @@ class User < ApplicationRecord
   has_secure_password
   has_many :tickets, dependent: :destroy
 
+  enum :role, {
+    user:  "user",
+    admin: "admin",
+    agent: "agent"
+  }
+
   validates :name, presence: true
 
   validates :password, presence: true, length: { in: 6..15 }, on: :create

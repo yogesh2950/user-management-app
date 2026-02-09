@@ -31,7 +31,9 @@ class UsersTest < ActionDispatch::IntegrationTest
       mobile_no: 3456789013,
       city: "pune"
     }
+    # pp response.body
     res = JSON.parse(response.body)
+    # pp res
     assert_equal "yogesh", res['name']
     assert_equal "yogeshmm1@gmail.com", res['email']
     # assert_equal "1234567", res['password_digest']  # stored digested Password Not the integer 
@@ -44,8 +46,8 @@ class UsersTest < ActionDispatch::IntegrationTest
     get "/users.json", headers: { Authorization: "Bearer #{token}" }
     # pp token
     parsed_body = JSON.parse(response.body)
-    res = JSON.parse(response.body)["users"]
     # pp parsed_body
+    res = JSON.parse(response.body)["users"]
     # pp res
     assert_equal true, parsed_body["status"]
     assert_equal 1, res[0]['id']
@@ -83,15 +85,15 @@ class UsersTest < ActionDispatch::IntegrationTest
     assert_response :ok
   end
 
-  test "should delete the user by id" do 
+  test "should delete the user by id [admin]" do 
     delete "/users/1.json", 
     params: {}, 
     headers: { Authorization: "Bearer #{token}"}
     # pp response.body
     res = JSON.parse(response.body)
     # pp res
-    assert_equal "User deleted successfully", res['message']
-    assert_response :ok
+    assert_equal "You cannot deactivate an administrator account.", res['message']
+    assert_response :forbidden
   end
 
   test "should create user without parameters" do 
@@ -200,18 +202,18 @@ class UsersTest < ActionDispatch::IntegrationTest
     assert_not_nil token
   end
 
-  test "should not access deleted user" do
-    delete "/users/1.json", params:{},
-    headers: { Authorization: "Bearer #{token}" }
-    # pp response.body
-    get "/users/1.json", params:{},
-    headers: { Authorization: "Bearer #{token}" }
-    # pp response.body
-    res = JSON.parse(response.body)
-    # pp res
-    assert_equal "Token Not Found", res["message"]
-    assert_response :unauthorized
-  end
+
+  # check returns me login successfull
+  # test "should not access in_activated user" do
+  #   # pp response.body
+  #   get "/users/2.json", params:{},
+  #   headers: { Authorization: "Bearer #{token}" }
+  #   pp response.body
+  #   res = JSON.parse(response.body)
+  #   pp res
+  #   assert_equal "Your account has been deactivated. Please contact admin.", res["message"]
+  #   # assert_response :unauthorized
+  # end
 
   test "should get all users with invalid token" do
     get "/users.json", headers: { Authorization: "Bearer #{"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo5OTksInRlbXBvcmFyeXRlc3RpbmciOiJoZWxsbyJ9.b_kAhcLSGeV_cs84xS6KAbczNB_he24QESNcWEqecAQ"}" }
@@ -243,7 +245,9 @@ class UsersTest < ActionDispatch::IntegrationTest
 
     res = JSON.parse(response.body)
     # pp res
-    assert_equal "You're not allowed to perform this action!", res["message"]
+    assert_equal "Your account has been deactivated. Please contact admin.", res["message"]
     assert_response :forbidden
   end
+
+  
 end

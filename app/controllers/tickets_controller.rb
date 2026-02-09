@@ -6,7 +6,13 @@ class TicketsController < ApplicationController
     if show_params[:status].present?
       @show_tickets = current_user.tickets.where(status: show_params[:status])
       render :index, status: :ok
-    else
+      return
+    end
+
+    if current_user.role == "admin"
+      @tickets = Ticket.all
+      render :index, status: :ok
+    elsif current_user.role == "user"
       # pp "else_---------------------------------"
       @show_tickets = current_user.tickets.all
       render :index, status: :ok
@@ -20,6 +26,12 @@ class TicketsController < ApplicationController
   end
 
   def create
+    # only users can create ticket admins are assigning it to agents
+    if current_user.role != "user"
+      render json: { message: "Only users can create tickets" }, status: :forbidden
+      return
+    end
+
     @ticket = current_user.tickets.new(
       title: ticket_params[:title], 
       description: ticket_params[:description], 
@@ -35,10 +47,12 @@ class TicketsController < ApplicationController
   end
 
   def update
+
+    if current_user.role == "admin"
     if @ticket.update(title: update_ticket_params[:title],
-       description: update_ticket_params[:description], 
-       status: update_ticket_params[:status], 
-       priority: update_ticket_params[:priority])
+      description: update_ticket_params[:description], 
+      status: update_ticket_params[:status], 
+      priority: update_ticket_params[:priority])
       render ticket: @ticket, status: :ok
     else
       # pp ""

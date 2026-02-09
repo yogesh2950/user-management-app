@@ -10,18 +10,19 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_02_06_105259) do
+ActiveRecord::Schema[8.1].define(version: 2026_02_08_040132) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
   create_table "tickets", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.text "description"
+    t.boolean "is_approval", default: false
     t.integer "priority"
     t.integer "status", default: 0
     t.string "title"
     t.datetime "updated_at", null: false
-    t.integer "user_id", null: false
+    t.bigint "user_id", null: false
     t.index ["user_id"], name: "index_tickets_on_user_id"
   end
 
@@ -33,6 +34,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_06_105259) do
     t.string "mobile_no"
     t.string "name"
     t.string "password_digest"
+    t.string "role", default: "user"
     t.datetime "updated_at", null: false
   end
 

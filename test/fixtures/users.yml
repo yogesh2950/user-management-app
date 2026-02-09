@@ -2,14 +2,19 @@
 user_1:
   id: 1
   name: "yogesh sutar"
+  # BCrypt::Password.create("1234567") which stores password_digest
   password_digest: "$2a$12$hdqRMR2tYXeUwzHx.jCOqOEnuJGmo64ApL4M74bPA6nu4BB0BePYC"
   email: "yogeshk@gmail.com"
   mobile_no: 9876543210
+  is_active: true
+  role: "admin"
   city: "Pune"
 
-# two:
-#   name: MyString
-#   password_digest: MyString
-#   email: MyString
-#   mobile_no: 1
-#   city: MyString
+# user_2:
+#   id: 2
+#   name: "yogesh"
+#   password_digest: "$2a$12$PC6V4/zI7PajrH.ziDFJyuDOYwcUmYVUH9W5gIy3yNf..."
+#   email: "yogesh@gmail.com"
+#   mobile_no: 9876543210
+#   is_active: false
+#   city: "Solapur"

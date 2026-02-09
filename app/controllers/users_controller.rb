@@ -5,7 +5,11 @@ class UsersController < ApplicationController
   skip_before_action :authorize_request, only: [ :create, :login ]
 
   def index
-    @users = User.all
+    if current_user.role == "admin"
+      @users = User.all
+    else
+      render json: { message: "You're not allowed for this operation" }, status: :forbidden
+    end
     # render :show
   end
 
@@ -16,7 +20,9 @@ class UsersController < ApplicationController
   def create
     @user = User.new(name: user_params[:name], email: user_params[:email], 
     password: user_params[:password], password_confirmation: user_params[:password_confirmation], 
-    mobile_no: user_params[:mobile_no], city: user_params[:city])
+    mobile_no: user_params[:mobile_no], city: user_params[:city], 
+    is_active: user_params[:is_active] || true, role: user_params[:role] || "user")
+
     # @user = User.new(user_params)
     # pp "=====user#{@user}==============="
     if @user.save
@@ -34,10 +40,16 @@ class UsersController < ApplicationController
     # pp"==========after user=" 
     # pp user
 
+    unless user.present?
+      render json: { message: "Invalid email or password" }, status: :unauthorized
+      return
+    end
+
     # Check if in_active user tries to login
-    unless user.id == false
+    # pp user.is_active
+    if user.is_active == false 
       render json: {
-        message: "You're not allowed to perform this action!"
+        message: "Your account has been deactivated. Please contact admin."
       }, status: :forbidden
       return
     end
@@ -60,8 +72,10 @@ class UsersController < ApplicationController
 
   def update
     # @user = User.find_by(id: params[:id])
+
+    # Temporarily stored is_active should remove later.
     if @user.update(name: update_user_params[:name], email: update_user_params[:email], 
-      mobile_no: update_user_params[:mobile_no], city: update_user_params[:city])
+      mobile_no: update_user_params[:mobile_no], city: update_user_params[:city], )
       # render @user, status: :ok
       render json: @user, status: :ok
     else
@@ -70,13 +84,22 @@ class UsersController < ApplicationController
   end
 
   def destroy
-    
-    if @user.destroy
-      render json: { message: "User deleted successfully" }, status: :ok
+    # pp @user
+
+    if @user.role == "admin"
+      render json: { message: "You cannot deactivate an administrator account." },
+      status: :forbidden
+      return
+    end
+
+    if @user.is_active
+      @user.update(is_active: false)
+      render json: { message: "User deactivated successfully." }, status: :ok
     else
-      render json: { message: "Error" }, status: :unprocessable_entity
+      render json: { message: "User is already inactive." }, status: :unprocessable_entity
     end
   end
+
 
   private
 
@@ -89,7 +112,7 @@ class UsersController < ApplicationController
   end
 
   def update_user_params
-    params.permit(:name, :email, :mobile_no, :city)
+    params.permit(:name, :email, :mobile_no, :city, :is_active)
   end
 
   def login_params
@@ -97,10 +120,11 @@ class UsersController < ApplicationController
   end
 
   def user_params
-    params.permit(:name, :email, :password, :password_confirmation, :mobile_no, :city)
+    params.permit(:name, :email, :password, :password_confirmation, :mobile_no, :city, :is_active, :role)
   end
 
   def check_valid_user
+    # pp current_user
     unless current_user.id == @user.id
       render json: { message: "You are not authorized user." }, status: :forbidden
       return

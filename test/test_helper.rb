@@ -16,10 +16,14 @@ module ActiveSupport
       # # @token = response_body["token"]
       # # @token = JSON.parse(response.body)["token"]
       # # pp @token
+      res = JSON.decode(response.body)
+      # pp res
+      assert_equal "login successful", res['message']
     end
 
     def token
       set_user
+      # pp set_user
       token = JSON.decode(response.body)["token"]
     end
 
