@@ -43,7 +43,7 @@ class UsersTest < ActionDispatch::IntegrationTest
   end
 
   test "should get all users" do
-    get "/users.json", headers: { Authorization: "Bearer #{token}" }
+    get "/users.json", headers: { Authorization: "Bearer #{admin_token}" }
     # pp token
     parsed_body = JSON.parse(response.body)
     # pp parsed_body
@@ -57,7 +57,7 @@ class UsersTest < ActionDispatch::IntegrationTest
   end
 
   test "should get user by id" do 
-    get "/users/1.json", params: {}, headers: { Authorization: "Bearer #{token}"}
+    get "/users/1.json", params: {}, headers: { Authorization: "Bearer #{admin_token}"}
     res = JSON.parse(response.body)
     # pp res
     assert_equal 1, res['id']
@@ -74,7 +74,7 @@ class UsersTest < ActionDispatch::IntegrationTest
         mobile_no: 3455689404,
         city: "pune"
     }, 
-    headers: { Authorization: "Bearer #{token}"}
+    headers: { Authorization: "Bearer #{admin_token}"}
     # pp response.body
     res = JSON.parse(response.body)
     # pp res
@@ -88,7 +88,7 @@ class UsersTest < ActionDispatch::IntegrationTest
   test "should delete the user by id [admin]" do 
     delete "/users/1.json", 
     params: {}, 
-    headers: { Authorization: "Bearer #{token}"}
+    headers: { Authorization: "Bearer #{admin_token}"}
     # pp response.body
     res = JSON.parse(response.body)
     # pp res
@@ -249,5 +249,32 @@ class UsersTest < ActionDispatch::IntegrationTest
     assert_response :forbidden
   end
 
-  
+  test "should change role from admin only" do 
+    patch "/users/assign-role", params: {
+        role: "agent",
+        id: 2
+    }, 
+    headers: { Authorization: "Bearer #{admin_token}"}
+    # pp response.body
+    res = JSON.parse(response.body)
+    # pp res
+    assert_equal 2, res['id']
+    assert_equal "agent", res['role']
+    assert_response :ok
+  end
+
+  test "should not change role from user" do 
+    patch "/users/assign-role", params: {
+      role: "agent",
+      id: 3
+    },
+    headers: { Authorization: "Bearer #{token}"}
+    # pp response.body
+    res = JSON.parse(response.body)
+    # pp res
+    assert_equal "You are not authorised!", res["message"]
+    assert_response :unauthorized
+  end
+
+
 end

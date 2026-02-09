@@ -8,7 +8,7 @@ module ActiveSupport
 
     def set_user
       post "/login",
-      params: { email: "yogeshk@gmail.com", password: "1234567" }
+      params: { email: "user@gmail.com", password: "1234567" }
       # pp "Response body #{response.body}"
       # # pp response.body
       # # parsed_data = JSON.parse(response.body)
@@ -21,9 +21,21 @@ module ActiveSupport
       assert_equal "login successful", res['message']
     end
 
+    def set_admin
+      post "/login",
+      params: { email: "yogeshk@gmail.com", password: "1234567" }
+      res = JSON.decode(response.body)
+      assert_equal "login successful", res['message']
+    end
+
     def token
       set_user
       # pp set_user
+      token = JSON.decode(response.body)["token"]
+    end
+
+    def admin_token
+      set_admin
       token = JSON.decode(response.body)["token"]
     end
 

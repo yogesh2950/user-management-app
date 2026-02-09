@@ -8,9 +8,10 @@ class TicketsController < ApplicationController
       render :index, status: :ok
       return
     end
-
     if current_user.role == "admin"
+      # pp "admin"
       @tickets = Ticket.all
+      # pp @tickets
       render :index, status: :ok
     elsif current_user.role == "user"
       # pp "else_---------------------------------"
@@ -31,11 +32,9 @@ class TicketsController < ApplicationController
       render json: { message: "Only users can create tickets" }, status: :forbidden
       return
     end
-
     @ticket = current_user.tickets.new(
       title: ticket_params[:title], 
       description: ticket_params[:description], 
-      status: ticket_params[:status] || 'open', 
       priority: ticket_params[:priority]
     )
     if @ticket.save
@@ -48,7 +47,7 @@ class TicketsController < ApplicationController
 
   def update
 
-    if current_user.role == "admin"
+    # if current_user.role == "admin"
     if @ticket.update(title: update_ticket_params[:title],
       description: update_ticket_params[:description], 
       status: update_ticket_params[:status], 
@@ -84,7 +83,7 @@ class TicketsController < ApplicationController
   end
 
   def ticket_params
-    params.permit(:title, :description, :status, :priority)
+    params.permit(:title, :description, :priority)
   end
 
   def show_params

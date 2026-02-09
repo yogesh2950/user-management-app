@@ -10,11 +10,22 @@ user_1:
   role: "admin"
   city: "Pune"
 
-# user_2:
-#   id: 2
-#   name: "yogesh"
-#   password_digest: "$2a$12$PC6V4/zI7PajrH.ziDFJyuDOYwcUmYVUH9W5gIy3yNf..."
-#   email: "yogesh@gmail.com"
-#   mobile_no: 9876543210
-#   is_active: false
-#   city: "Solapur"
+user_2:
+  id: 2
+  name: "yogesh"
+  password_digest: "$2a$12$gquqONTIksZSXTateg/ID.yxqO6qg1p6nRWUkI6w9VNBvXd5LGjkC"
+  email: "yogesh@gmail.com"
+  mobile_no: 9876543210
+  is_active: true
+  role: "user"
+  city: "Solapur"
+
+user_3:
+  id: 3
+  name: "user"
+  password_digest: "$2a$12$tNGHDNJTYH/zaO.KSCR4.O7ikceYcam.Svo4V0g/NvEQPz2aRbSza"
+  email: "user@gmail.com"
+  mobile_no: 9876543210
+  is_active: true
+  role: "user"
+  city: "Pune"

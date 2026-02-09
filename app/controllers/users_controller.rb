@@ -1,7 +1,7 @@
 class UsersController < ApplicationController
   skip_before_action :verify_authenticity_token # this is to remove csrf token missing warning
   before_action :set_user, only: [ :show, :update, :destroy ]
-  before_action :check_valid_user, except: [:index, :create, :login]
+  before_action :check_valid_user, except: [:index, :create, :login, :assign_roles]
   skip_before_action :authorize_request, only: [ :create, :login ]
 
   def index
@@ -13,6 +13,34 @@ class UsersController < ApplicationController
     # render :show
   end
 
+
+  # To change roles if admin exist
+  def assign_roles
+    # pp "eeeeeee"
+    if current_user.role == "admin"
+      # pp current_user
+      @user = User.find_by(id: assign_roles_params[:id])
+
+      # pp @user
+      unless @user.present?
+        render json: { status: false, message: "User Not Found" }
+        return
+      end
+      # pp @user
+      if @user.update( role: assign_roles_params[:role], id: assign_roles_params[:id] )
+        # render @user, status: :ok
+        render json: @user, status: :ok
+      else
+        render json: { message: @user.errors.full_messages }, status: :unprocessable_entity
+      end
+    else
+      # pp "errorrrrrrrrrrrrrrr"
+      render json: { message: "You are not authorised!" }, status: :unauthorized
+    end
+  end
+
+
+
   def show
     # @user = User.find(params[:id])
   end
@@ -20,8 +48,7 @@ class UsersController < ApplicationController
   def create
     @user = User.new(name: user_params[:name], email: user_params[:email], 
     password: user_params[:password], password_confirmation: user_params[:password_confirmation], 
-    mobile_no: user_params[:mobile_no], city: user_params[:city], 
-    is_active: user_params[:is_active] || true, role: user_params[:role] || "user")
+    mobile_no: user_params[:mobile_no], city: user_params[:city])
 
     # @user = User.new(user_params)
     # pp "=====user#{@user}==============="
@@ -75,7 +102,7 @@ class UsersController < ApplicationController
 
     # Temporarily stored is_active should remove later.
     if @user.update(name: update_user_params[:name], email: update_user_params[:email], 
-      mobile_no: update_user_params[:mobile_no], city: update_user_params[:city], )
+      mobile_no: update_user_params[:mobile_no], city: update_user_params[:city] )
       # render @user, status: :ok
       render json: @user, status: :ok
     else
@@ -93,6 +120,7 @@ class UsersController < ApplicationController
     end
 
     if @user.is_active
+      
       @user.update(is_active: false)
       render json: { message: "User deactivated successfully." }, status: :ok
     else
@@ -120,7 +148,7 @@ class UsersController < ApplicationController
   end
 
   def user_params
-    params.permit(:name, :email, :password, :password_confirmation, :mobile_no, :city, :is_active, :role)
+    params.permit(:name, :email, :password, :password_confirmation, :mobile_no, :city)
   end
 
   def check_valid_user
@@ -129,5 +157,10 @@ class UsersController < ApplicationController
       render json: { message: "You are not authorized user." }, status: :forbidden
       return
     end
+  end
+
+
+  def assign_roles_params
+    params.permit(:id, :role)
   end
 end

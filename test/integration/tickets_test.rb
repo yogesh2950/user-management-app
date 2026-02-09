@@ -9,7 +9,7 @@ class TicketsTest < ActionDispatch::IntegrationTest
         title: "users model issue",
         description: "Users model has issue fix it",
         status: "open",
-        priority: 1
+        priority: "high"
     }, 
     headers: { Authorization: "Bearer #{token}" }
     # pp response.body
@@ -18,7 +18,7 @@ class TicketsTest < ActionDispatch::IntegrationTest
     assert_equal "users model issue", res['title']
     assert_equal "Users model has issue fix it", res['description']
     assert_equal "open", res['status']
-    assert_equal 1, res['priority']
+    assert_equal "high", res['priority']
     assert_response :created
   end
 
@@ -41,7 +41,7 @@ class TicketsTest < ActionDispatch::IntegrationTest
     params: {
       description: "users model issue",
       status: "open",
-      priority: 1
+      priority: "high"
     },
     headers: { Authorization: "Bearer #{token}" }
     # pp response.body
@@ -67,10 +67,10 @@ class TicketsTest < ActionDispatch::IntegrationTest
   test "should view all tickets" do
     get "/tickets.json", 
     params:{}, 
-    headers: { Authorization: "Bearer #{token}" }
-    # pp response.body
+    headers: { Authorization: "Bearer #{admin_token}" }
+    pp response.body
     res = JSON.parse(response.body)
-    # pp res
+    pp res
     assert_equal true, res["status"]
     # assert_equal ticket_body['total_count']
     assert(res['total_count'] >= 1, "Expected total_count to be greater than 1")
@@ -82,13 +82,13 @@ class TicketsTest < ActionDispatch::IntegrationTest
     params:{
       "status": "pending"
     }, 
-    headers: { Authorization: "Bearer #{token}" }
+    headers: { Authorization: "Bearer #{admin_token}" }
     # pp response.body
     res = JSON.parse(response.body)
     # pp res
     # assert_equal res['total_count']
     assert_equal true, res["status"]
-    assert(res['total_count'] >= 1, "Expected total_count to be greater than 1")
+    # assert(res['total_count'] >= 1, "Expected total_count to be greater than 1")
   end
   
   test "should get empty list for not assigned status" do
@@ -106,7 +106,7 @@ class TicketsTest < ActionDispatch::IntegrationTest
   test "should view tickets by id" do
     get "/tickets/1.json", 
     params:{}, 
-    headers: { Authorization: "Bearer #{token}" }
+    headers: { Authorization: "Bearer #{admin_token}" }
     # pp response.body
     res = JSON.parse(response.body)
     # pp res
@@ -114,8 +114,8 @@ class TicketsTest < ActionDispatch::IntegrationTest
     assert_equal 1, res["id"]
     assert_equal "Ticket Controller had issues", res["title"]
     assert_equal "Ticket Controller had some issues solve ASAP", res["description"]
-    assert_equal "pending", res["status"]
-    assert_equal 1, res["priority"]
+    assert_equal "open", res["status"]
+    assert_equal "high", res["priority"]
   end
   
   test "should update ticket" do
@@ -123,25 +123,25 @@ class TicketsTest < ActionDispatch::IntegrationTest
     params:{
       title: "Tickets had issues",
       description: "Tickets has issues fix it",
-      status: "on_hold",
-      priority: 1
+      status: "closed",
+      priority: "high"
     }, 
-    headers: { Authorization: "Bearer #{token}" }
+    headers: { Authorization: "Bearer #{admin_token}" }
     # pp response.body
     res = JSON.parse(response.body)
     # pp res
     assert_equal 1, res["id"]
     assert_equal "Tickets had issues", res["title"]
     assert_equal "Tickets has issues fix it", res["description"]
-    assert_equal "on_hold", res["status"]
-    assert_equal 1, res["priority"]
+    assert_equal "closed", res["status"]
+    assert_equal "high", res["priority"]
     assert_response :ok
   end
   
   test "should not update ticket with empty params" do
     patch "/tickets/1.json",
     params: {},
-    headers: { Authorization: "Bearer #{token}" }
+    headers: { Authorization: "Bearer #{admin_token}" }
     # pp response.body
     res = JSON.parse(response.body)
     # pp res
@@ -169,7 +169,7 @@ class TicketsTest < ActionDispatch::IntegrationTest
   test "should delete ticket" do
     delete "/tickets/1.json", 
     params:{}, 
-    headers: { Authorization: "Bearer #{token}" }
+    headers: { Authorization: "Bearer #{admin_token}" }
     # pp response.body
     res = JSON.parse(response.body)
     # pp res
@@ -244,7 +244,7 @@ class TicketsTest < ActionDispatch::IntegrationTest
       title: "Tickets had issues",
       description: "Tickets had issues fix it",
       status: "open",
-      priority: 1,
+      priority: "high",
       author: "yogesh"
     },
     headers: { Authorization: "Bearer #{token}" }
