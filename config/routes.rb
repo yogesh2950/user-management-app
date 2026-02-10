@@ -49,7 +49,9 @@ Rails.application.routes.draw do
   get "/tickets/:id", to: "tickets#show"
 
   post "/tickets", to: "tickets#create"
-
+  
+  patch "/tickets/:id/assign-agent", to: "tickets#assign_agent"
+  
   patch "/tickets/:id", to: "tickets#update"
 
   delete "/tickets/:id", to: "tickets#destroy"

@@ -26,6 +26,11 @@ class UsersController < ApplicationController
         render json: { status: false, message: "User Not Found" }
         return
       end
+
+      if current_user.id == @user.id
+        render json: { message: "Admin cannot change own role." }, status: :forbidden
+        return
+      end
       # pp @user
       if @user.update( role: assign_roles_params[:role], id: assign_roles_params[:id] )
         # render @user, status: :ok
@@ -100,9 +105,8 @@ class UsersController < ApplicationController
   def update
     # @user = User.find_by(id: params[:id])
 
-    # Temporarily stored is_active should remove later.
-    if @user.update(name: update_user_params[:name], email: update_user_params[:email], 
-      mobile_no: update_user_params[:mobile_no], city: update_user_params[:city] )
+    # In update don't pass deconstructed params, means explicitely pass params it will assign nil if we don't pass the values in it and updates it.
+    if @user.update( update_user_params )
       # render @user, status: :ok
       render json: @user, status: :ok
     else
@@ -140,7 +144,7 @@ class UsersController < ApplicationController
   end
 
   def update_user_params
-    params.permit(:name, :email, :mobile_no, :city, :is_active)
+    params.permit(:name, :email, :mobile_no, :city)
   end
 
   def login_params
@@ -158,7 +162,6 @@ class UsersController < ApplicationController
       return
     end
   end
-
 
   def assign_roles_params
     params.permit(:id, :role)
