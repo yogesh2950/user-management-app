@@ -5,7 +5,7 @@ class UsersController < ApplicationController
   skip_before_action :authorize_request, only: [ :create, :login ]
 
   def index
-    if current_user.role == "admin"
+    if @current_user.role == "admin"
       @users = User.all
     else
       render json: { message: "You're not allowed for this operation" }, status: :forbidden
@@ -17,8 +17,8 @@ class UsersController < ApplicationController
   # To change roles if admin exist
   def assign_roles
     # pp "eeeeeee"
-    if current_user.role == "admin"
-      # pp current_user
+    if @current_user.role == "admin"
+      # pp @current_user
       @user = User.find_by(id: assign_roles_params[:id])
 
       # pp @user
@@ -27,12 +27,12 @@ class UsersController < ApplicationController
         return
       end
 
-      if current_user.id == @user.id
+      if @current_user.id == @user.id
         render json: { message: "Admin cannot change own role." }, status: :forbidden
         return
       end
       # pp @user
-      if @user.update( role: assign_roles_params[:role], id: assign_roles_params[:id] )
+      if @user.update( assign_roles_params )
         # render @user, status: :ok
         render json: @user, status: :ok
       else
@@ -47,13 +47,12 @@ class UsersController < ApplicationController
 
 
   def show
+    render json: @user, status: :ok
     # @user = User.find(params[:id])
   end
 
   def create
-    @user = User.new(name: user_params[:name], email: user_params[:email], 
-    password: user_params[:password], password_confirmation: user_params[:password_confirmation], 
-    mobile_no: user_params[:mobile_no], city: user_params[:city])
+    @user = User.new( user_params )
 
     # @user = User.new(user_params)
     # pp "=====user#{@user}==============="
@@ -137,8 +136,14 @@ class UsersController < ApplicationController
 
   def set_user
     @user = User.find_by(id: params[:id])
+    # pp @user.is_active
     unless @user.present?
       render json: { status: false, message: "User Not Found" }
+      return
+    end
+    # pp "===================="
+    unless @user.is_active == true
+      render json: { message: "User is deactivated", status: false}
       return
     end
   end
@@ -156,8 +161,8 @@ class UsersController < ApplicationController
   end
 
   def check_valid_user
-    # pp current_user
-    unless current_user.id == @user.id
+    # pp @current_user
+    unless @current_user.id == @user.id
       render json: { message: "You are not authorized user." }, status: :forbidden
       return
     end

@@ -29,3 +29,13 @@ user_3:
   is_active: true
   role: "user"
   city: "Pune"
+
+user_4:
+  id: 4
+  name: "inactive_user"
+  password_digest: "$2a$12$tNGHDNJTYH/zaO.KSCR4.O7ikceYcam.Svo4V0g/NvEQPz2aRbSza"
+  email: "inactiveuser@gmail.com"
+  mobile_no: 9876543210
+  is_active: false
+  role: "user"
+  city: "Pune"

@@ -20,13 +20,13 @@ Rails.application.routes.draw do
 
   get "/users", to: "users#index"
 
-  get "/users/:id", to: "users#show"
+  get "/users/specific", to: "users#show"
 
   patch "/users/assign-role", to: "users#assign_roles"
 
   post "/users", to: "users#create"
 
-  patch "/users/:id", to: "users#update"
+  patch "/users", to: "users#update"
 
   delete "/users/:id", to: "users#destroy"
 
@@ -46,15 +46,15 @@ Rails.application.routes.draw do
 
   get "/tickets", to: "tickets#index"
 
-  get "/tickets/:id", to: "tickets#show"
+  get "/tickets/specific", to: "tickets#show"
 
   post "/tickets", to: "tickets#create"
   
-  patch "/tickets/:id/assign-agent", to: "tickets#assign_agent"
+  patch "/tickets/assign-agent/", to: "tickets#assign_agent"
   
-  patch "/tickets/:id", to: "tickets#update"
+  patch "/tickets", to: "tickets#update"
 
-  delete "/tickets/:id", to: "tickets#destroy"
+  delete "/tickets", to: "tickets#destroy"
 
 
 

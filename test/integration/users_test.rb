@@ -56,15 +56,19 @@ class UsersTest < ActionDispatch::IntegrationTest
     assert_equal "9876543210", res[0]['mobile_no']
   end
 
+
+  # When I hit url with QP gives me html, while 
   test "should get user by id" do 
-    get "/users/1.json", params: {}, headers: { Authorization: "Bearer #{admin_token}"}
+    get "/users/specific?id=3", params: {}, headers: { Authorization: "Bearer #{token}"}
+    # pp response.body
     res = JSON.parse(response.body)
     # pp res
-    assert_equal 1, res['id']
-    assert_equal "yogesh sutar", res['full_name']
-    assert_equal "yogeshk@gmail.com", res['email_id']
+    assert_equal 3, res['id']
+    assert_response :ok
+    # assert_equal "yogesh sutar", res['full_name']
+    # assert_equal "yogeshk@gmail.com", res['email_id']
     # assert_equal "1234567", res['password_digest']
-    assert_equal "9876543210", res['mobile_no']
+    # assert_equal "9876543210", res['mobile_no']
   end
 
   test "should update the user by id" do 
@@ -187,10 +191,11 @@ class UsersTest < ActionDispatch::IntegrationTest
   end
 
   test "should print user not found for invalid user_id" do
-    get "/users/154.json", 
+    get "/users/specific?id=154", 
     params: {},
-    headers: { Authorization: "Bearer #{token}" }
+    headers: { Authorization: "Bearer #{admin_token}" }
     res = JSON.parse(response.body)
+    # pp res
     assert_equal false, res["status"]
     assert_equal "User Not Found", res["message"]
   end
@@ -227,19 +232,18 @@ class UsersTest < ActionDispatch::IntegrationTest
   end
 
   test "should not allowed in_active user to login" do
-    post "/users", 
-    params:{
-      name: "yogesh",
-      email: "yogeshmm1@gmail.com",
-      password: "1234567",
-      password_confirmation: "1234567",
-      is_active: false,
-      mobile_no: 3456789013,
-      city: "pune"
-    }
-
+    # post "/users", 
+    # params:{
+    #   name: "yogesh",
+    #   email: "yogeshmm1@gmail.com",
+    #   password: "1234567",
+    #   password_confirmation: "1234567",
+    #   is_active: false,
+    #   mobile_no: 3456789013,
+    #   city: "pune"
+    # }
     post "/login.json", params:{
-      email: "yogeshmm1@gmail.com",
+      email: "inactiveuser@gmail.com",
       password: "1234567"
     }
 

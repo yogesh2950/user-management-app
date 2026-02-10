@@ -3,24 +3,37 @@ class TicketsController < ApplicationController
   before_action :set_ticket, only: [ :show, :destroy, :update ]
 
   def index
-    if show_params[:status].present?
-      @show_tickets = current_user.tickets.where(status: show_params[:status])
-      render :index, status: :ok
-      return
+    # if show_params[:status].present?
+    #   # pp "Inside if"
+    #   @show_tickets = @current_user.tickets.where(status: show_params[:status])
+    #   render ticket: @show_tickets, status: :ok
+    #   return
+    # else
+    #   if @current_user.role == "admin"
+    #     # pp "admin"
+    #     @show_tickets = Ticket.all
+    #     # pp @tickets
+    #     render ticket: @show_tickets, status: :ok
+    #   elsif @current_user.role == "user"
+    #     # pp "else_---------------------------------"
+    #     # @show_tickets = @current_user.tickets.all
+    #     @show_tickets = @current_user.tickets.all
+    #     # pp @show_tickets
+    #     render ticket: @show_tickets, status: :ok
+    #   end
+    #   # @tickets = Ticket.all
+    #   # render json: @current_user.tickets.all
+    # end
+    if @current_user.role == "admin"
+      # get all tickets
+      
+    elsif @current_user.role == "agent"
+      # get tickets assigned to particualr agent
+      @show_tickets = Ticket.where(user_id: @current_user.id)
+    else
+      # get tickets created by particular user
+      @show_tickets = Ticket.where(user_id: @current_user.id)
     end
-    if current_user.role == "admin"
-      # pp "admin"
-      @tickets = Ticket.all
-      # pp @tickets
-      render :index, status: :ok
-    elsif current_user.role == "user"
-      # pp "else_---------------------------------"
-      # @show_tickets = current_user.tickets.all
-      @tickets = current_user.tickets.all
-      render :index, status: :ok
-    end
-    # @tickets = Ticket.all
-    # render json: current_user.tickets.all
   end
 
   def show
@@ -29,16 +42,14 @@ class TicketsController < ApplicationController
 
   def create
     # only users can create ticket admins are assigning it to agents
-    if current_user.role != "user"
+    if @current_user.role != "user"
       render json: { message: "Only users can create tickets" }, status: :forbidden
       return
     end
-    @ticket = current_user.tickets.new(
-      title: ticket_params[:title], 
-      description: ticket_params[:description], 
-      priority: ticket_params[:priority]
-    )
+    @ticket = @current_user.tickets.new( ticket_params )
     if @ticket.save
+      pp @ticket
+      created_by = @current_user.id
       render ticket: @ticket, status: :created
     else
       # pp "====="
@@ -47,10 +58,9 @@ class TicketsController < ApplicationController
   end
 
   def update
-
-    if current_user.role == "admin"
-      permitted_params = update_ticket_params.permit(:status)
-    elsif current_user.role != "admin"
+    if @current_user.role == "admin" || @current_user.role == "agent"
+      permitted_params = params.permit(:status)
+    elsif @current_user.role == "user" && @ticket.is_assigned == false
       permitted_params = params.permit(:title, :description, :priority)
     end
 
@@ -64,6 +74,11 @@ class TicketsController < ApplicationController
   end
 
   def destroy
+    unless @current_user.role == "admin"
+      render json: { message: "You don't have permission, Only agents require!" }, status: :forbidden
+      return
+    end
+
     if @ticket.destroy
       render json: { message: "Ticket deleted successfully" }, status: :ok
     else
@@ -71,35 +86,32 @@ class TicketsController < ApplicationController
     end
   end
 
-
-
   def assign_agent
-    unless current_user.role == "admin"
-      render json: { message: "Only admin can assign tickets to agents." }, status: :forbidden
+    # I have to update 
+    unless @current_user.role == "admin"
+      render json: {message: "Only admins can assign tickets. You don't have permission!"}, status: :forbidden
       return
     end
 
-    # @ticket = Ticket.find_by(id: assign_ticket_params[:id])
-    @ticket = Ticket.find_by(id: params[:id])
+    @ticket = Ticket.find_by(id: assign_agent_params[:ticket_id])
     unless @ticket.present?
-      render json: { message: "Ticket not found." }, status: :not_found
+      render json: { message: "Ticket not found" }, status: :unprocessable_entity
       return
     end
-    
-    @agent = User.find_by(id: assign_ticket_params[:user_id])
 
+    @agent = User.find_by(id: assign_agent_params[:user_id])
     unless @agent.present?
-      render json: { message: "Agent not found." }, status: :not_found
+      render json: { message: "Agent not found" }, status: :unprocessable_entity
       return
     end
-
     unless @agent.role == "agent"
-      render json: { message: "Invalid agent." }, status: :unprocessable_entity
+      render json: { message: "You don't have permission, Only agents require!" }, status: :forbidden
       return
     end
 
-    if @ticket.update(user_id: @agent.id)
-      render json: { message: "Ticket assigned to agent successfully." }, status: :ok
+    if @ticket.update( assigned_to: @agent.id )
+      is_assigned = true
+      render json: @ticket, status: :ok
     else
       render json: { message: @ticket.errors.full_messages }, status: :unprocessable_entity
     end
@@ -107,26 +119,23 @@ class TicketsController < ApplicationController
 
   private
 
-  def assign_ticket_params
-    params.permit(:user_id)
+
+  def assign_agent_params
+    params.permit(:ticket_id, :user_id)
   end
 
   def set_ticket
     # user can see only his ; admin sees all
-    if current_user.role == "admin"
+    if @current_user.role == "admin"
       @ticket = Ticket.find_by(id: params[:id])
     else
-      @ticket = current_user.tickets.find_by(id: params[:id])
+      @ticket = @current_user.tickets.find_by(id: params[:id])
     end
-    # @ticket = current_user.tickets.find_by(id: params[:id])
+    # @ticket = @current_user.tickets.find_by(id: params[:id])
     unless @ticket.present?
       render json: { status: false, message: "Ticket Not Found" }, status: :unprocessable_entity
       return
     end
-  end
-
-  def update_ticket_params
-    params.permit(:title, :description, :status, :priority)
   end
 
   def ticket_params
@@ -136,6 +145,7 @@ class TicketsController < ApplicationController
   def show_params
     params.permit(:status)
   end
+  
 end
 
 

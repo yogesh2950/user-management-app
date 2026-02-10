@@ -10,14 +10,17 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_02_08_040132) do
+ActiveRecord::Schema[8.1].define(version: 2026_02_10_110453) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
   create_table "tickets", force: :cascade do |t|
+    t.integer "assigned_to"
     t.datetime "created_at", null: false
+    t.integer "created_by"
     t.text "description"
-    t.boolean "is_approval", default: false
+    t.boolean "is_approval_required", default: false
+    t.boolean "is_assigned", default: false
     t.integer "priority"
     t.integer "status", default: 0
     t.string "title"
