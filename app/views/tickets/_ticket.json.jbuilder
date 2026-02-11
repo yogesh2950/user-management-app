@@ -2,5 +2,5 @@
 json.id ticket.id
 json.title ticket.title
 json.description ticket.description
-json.status ticket.status
+json.ticket_status ticket.status
 json.priority ticket.priority

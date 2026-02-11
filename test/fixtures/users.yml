@@ -1,4 +1,6 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+# This admin is currently logged in
 user_1:
   id: 1
   name: "yogesh sutar"
@@ -20,6 +22,7 @@ user_2:
   role: "user"
   city: "Solapur"
 
+# This user is currently logged in
 user_3:
   id: 3
   name: "user"
@@ -30,12 +33,23 @@ user_3:
   role: "user"
   city: "Pune"
 
+# This agent is currently logged in
 user_4:
   id: 4
-  name: "inactive_user"
-  password_digest: "$2a$12$tNGHDNJTYH/zaO.KSCR4.O7ikceYcam.Svo4V0g/NvEQPz2aRbSza"
+  name: "agent"
+  password_digest: "$2a$12$6AvCIAbSxyqVq2D8fuBE.eK.Dq3j17Sp83adpd1JYcUPksMTA6aGq"
+  email: "agent@gmail.com"
+  mobile_no: 9876543210
+  is_active: false
+  role: "agent"
+  city: "Pune"
+
+user_5:
+  id: 5
+  name: "inactive"
+  password_digest: "$2a$12$6AvCIAbSxyqVq2D8fuBE.eK.Dq3j17Sp83adpd1JYcUPksMTA6aGq"
   email: "inactiveuser@gmail.com"
   mobile_no: 9876543210
   is_active: false
-  role: "user"
+  role: "agent"
   city: "Pune"

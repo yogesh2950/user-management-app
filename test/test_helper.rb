@@ -38,7 +38,19 @@ module ActiveSupport
       set_admin
       token = JSON.decode(response.body)["token"]
     end
+    
+    def set_agent
+      post "/login",
+      params: { email: "agent@gmail.com", password: "1234567" }
+      res = JSON.decode(response.body)
+      assert_equal "login successful", res['message']
+    end
 
+    def agent_token
+      set_agent
+      token = JSON.decode(response.body)["token"]
+    end
+    
     # Run tests in parallel with specified workers
     parallelize(workers: :number_of_processors)
 

@@ -13,18 +13,21 @@ class Ticket < ApplicationRecord
   }
 
   enum :priority, {
-    urgent: 0,
-    high: 1,
-    medium: 2,
-    low: 3
+    low: 0,
+    medium: 1,
+    high: 2,
+    urgent: 3
   }
 
   # scope :name, ->{where (:attribute => value)}
 
-  scope :by_status, -> { where (status: status)}
-  scope :by_status, ->(status) {
-    where(status: status) if status.present?
+  scope :by_status, ->(params){ where(status: params[:status]) }
+  # scope :by_priority, -> (priority){ where(priority: priority)}
+  scope :by_order, ->(params) {
+    filter = params[:sort] == "newest" ? :desc : :asc
+    order(created_at: filter)
   }
+  scope :order_by_priority, ->(params) {order( priority: params[:priority].to_sym)} 
 
   # validates :status, presence: true
   validates :title, presence: true

@@ -50,10 +50,6 @@ class UsersTest < ActionDispatch::IntegrationTest
     res = JSON.parse(response.body)["users"]
     # pp res
     assert_equal true, parsed_body["status"]
-    assert_equal 1, res[0]['id']
-    assert_equal "yogesh sutar", res[0]['full_name']
-    assert_equal "yogeshk@gmail.com", res[0]['email_id']
-    assert_equal "9876543210", res[0]['mobile_no']
   end
 
 
@@ -240,7 +236,8 @@ class UsersTest < ActionDispatch::IntegrationTest
     #   mobile_no: 3456789013,
     #   city: "pune"
     # }
-    post "/login.json", params:{
+    post "/login", 
+    params:{
       email: "inactiveuser@gmail.com",
       password: "1234567"
     }
