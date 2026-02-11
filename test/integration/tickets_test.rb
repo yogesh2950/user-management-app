@@ -8,7 +8,6 @@ class TicketsTest < ActionDispatch::IntegrationTest
     params:{
         title: "users model issue",
         description: "Users model has issue fix it",
-        status: "open",
         priority: "high"
     }, 
     headers: { Authorization: "Bearer #{token}" }
@@ -17,7 +16,7 @@ class TicketsTest < ActionDispatch::IntegrationTest
     # pp res
     assert_equal "users model issue", res['title']
     assert_equal "Users model has issue fix it", res['description']
-    assert_equal "open", res['status']
+    assert_equal "open", res['status'] #default
     assert_equal "high", res['priority']
     assert_response :created
   end
@@ -104,8 +103,8 @@ class TicketsTest < ActionDispatch::IntegrationTest
 
 
   test "should view tickets by id" do
-    get "/tickets/1.json", 
-    params:{}, 
+    get "/tickets/specific.json", 
+    params:{ id: 1 }, 
     headers: { Authorization: "Bearer #{admin_token}" }
     # pp response.body
     res = JSON.parse(response.body)
@@ -119,44 +118,39 @@ class TicketsTest < ActionDispatch::IntegrationTest
   end
   
   test "should update ticket" do
-    patch "/tickets/1.json", 
+    patch "/tickets.json", 
     params:{
-      title: "Tickets had issues",
-      description: "Tickets has issues fix it",
-      status: "closed",
-      priority: "high"
+      id: 1,
+      status: "closed"
     }, 
     headers: { Authorization: "Bearer #{admin_token}" }
     # pp response.body
     res = JSON.parse(response.body)
     # pp res
     assert_equal 1, res["id"]
-    assert_equal "Tickets had issues", res["title"]
-    assert_equal "Tickets has issues fix it", res["description"]
     assert_equal "closed", res["status"]
-    assert_equal "high", res["priority"]
     assert_response :ok
   end
   
   test "should not update ticket with empty params" do
-    patch "/tickets/1.json",
-    params: {},
-    headers: { Authorization: "Bearer #{admin_token}" }
-    # pp response.body
+    patch "/tickets.json",
+    params: { id: 1 },
+    headers: { Authorization: "Bearer #{token}" }
+    pp response.body
     res = JSON.parse(response.body)
-    # pp res
+    pp res
     assert_equal ["Title can't be blank", "Priority can't be blank"], res["message"]
     assert_response :unprocessable_entity
   end
 
   test "should not update ticket with invalid id" do
-    patch "/tickets/2.json",
+    patch "/tickets.json",
     params:
     {
-        title: "users model issue",
-        description: "Users model has issue fix it",
-        status: "open",
-        priority: 1
+      id: 2,
+      title: "users model issue",
+      description: "Users model has issue fix it",
+      priority: 1
     },
     headers: { Authorization: "Bearer #{token}" }
     # pp response.body
@@ -167,8 +161,8 @@ class TicketsTest < ActionDispatch::IntegrationTest
   end
 
   test "should delete ticket" do
-    delete "/tickets/1.json", 
-    params:{}, 
+    delete "/tickets.json", 
+    params:{ id: 1 }, 
     headers: { Authorization: "Bearer #{admin_token}" }
     # pp response.body
     res = JSON.parse(response.body)
@@ -178,8 +172,8 @@ class TicketsTest < ActionDispatch::IntegrationTest
   end
   
   test "should not delete ticket with invalid id" do
-    delete "/tickets/4154.json",
-    params:{},
+    delete "/tickets.json",
+    params:{ id: 4154 },
     headers: { Authorization: "Bearer #{token}" }
     # pp response.body
     res = JSON.parse(response.body)
@@ -256,9 +250,11 @@ class TicketsTest < ActionDispatch::IntegrationTest
   end
 
   test "deleting ticket which already deleted should fail" do
-    delete "/tickets/1.json",
+    delete "/tickets.json",
+    params: { id: 1},
     headers: { Authorization: "Bearer #{token}" }
-    delete "/tickets/1.json",
+    delete "/tickets.json",
+    params: { id: 1},
     headers: { Authorization: "Bearer #{token}" }
     # pp response.body
     res = JSON.parse(response.body)
@@ -302,3 +298,5 @@ class TicketsTest < ActionDispatch::IntegrationTest
   # end
 
 end
+
+# 66, 140

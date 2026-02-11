@@ -19,6 +19,12 @@ class Ticket < ApplicationRecord
     low: 3
   }
 
+  # scope :name, ->{where (:attribute => value)}
+
+  scope :by_status, -> { where (status: status)}
+  scope :by_status, ->(status) {
+    where(status: status) if status.present?
+  }
 
   # validates :status, presence: true
   validates :title, presence: true

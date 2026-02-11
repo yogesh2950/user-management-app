@@ -26,14 +26,18 @@ class TicketsController < ApplicationController
     # end
     if @current_user.role == "admin"
       # get all tickets
-      
+      @show_tickets = Ticket.all
     elsif @current_user.role == "agent"
       # get tickets assigned to particualr agent
-      @show_tickets = Ticket.where(user_id: @current_user.id)
+      @show_tickets = Ticket.where(assigned_to: @current_user.id)
     else
       # get tickets created by particular user
       @show_tickets = Ticket.where(user_id: @current_user.id)
     end
+    # apply all scopes and return
+    @show_tickets = @show_tickets.by_status(params[:status])
+
+    render json: @show_tickets, status: :ok
   end
 
   def show
@@ -47,9 +51,9 @@ class TicketsController < ApplicationController
       return
     end
     @ticket = @current_user.tickets.new( ticket_params )
+    @ticket.created_by = @current_user.id
     if @ticket.save
-      pp @ticket
-      created_by = @current_user.id
+      # pp @ticket
       render ticket: @ticket, status: :created
     else
       # pp "====="
@@ -64,10 +68,15 @@ class TicketsController < ApplicationController
       permitted_params = params.permit(:title, :description, :priority)
     end
 
+    unless permitted_params.present?
+      render json: { message: "Parameters are missing" }, status: :forbidden
+      return
+    end
+
     if @ticket.update( permitted_params )
       render ticket: @ticket, status: :ok
     else
-      # pp ""
+      pp "===="
       # render json: { message: "Ticket not found"}, status: :unprocessable_entity
       render json: { message: @ticket.errors.full_messages }, status: :unprocessable_entity
     end
@@ -109,8 +118,8 @@ class TicketsController < ApplicationController
       return
     end
 
+    @ticket.is_assigned  = true
     if @ticket.update( assigned_to: @agent.id )
-      is_assigned = true
       render json: @ticket, status: :ok
     else
       render json: { message: @ticket.errors.full_messages }, status: :unprocessable_entity
