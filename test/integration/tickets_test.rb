@@ -373,27 +373,27 @@ class TicketsTest < ActionDispatch::IntegrationTest
     assert_response :forbidden
   end
 
-  # test "Update is not allowed after assigning to agent" do
-  #   patch "/tickets/assign-agent/", 
-  #   params:{
-  #     user_id: 4,     # assigned_to
-  #     ticket_id: 2
-  #   },
-  #   headers: { Authorization: "Bearer #{admin_token}" }
-  #   pp response.body    # is_assigned: true
+  test "Update is not allowed after assigning to agent" do
+    patch "/tickets/assign-agent/", 
+    params:{
+      user_id: 4,     # assigned_to
+      ticket_id: 2
+    },
+    headers: { Authorization: "Bearer #{admin_token}" }
+    # pp response.body    # is_assigned: true
 
-  #   patch "/tickets.json",
-  #   params:{
-  #     id: 2,
-  #     title: "users model issue",
-  #     description: "Users model has issue fix it",
-  #     priority: "high"
-  #   }, 
-  #   headers: { Authorization: "Bearer #{token} "}
+    patch "/tickets.json",
+    params:{
+      id: 2,
+      title: "users model h issue",
+      description: "Users model has issue fix it",
+      priority: "high"
+    }, 
+    headers: { Authorization: "Bearer #{token} "}
 
-  #   res = JSON.parse(response.body)
-  #   pp res
-  # end
+    res = JSON.parse(response.body)
+    pp res
+  end
 
   test "View all tickets if admin logged in" do
     get "/tickets.json",

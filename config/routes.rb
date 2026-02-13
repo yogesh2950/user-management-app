@@ -14,49 +14,53 @@ Rails.application.routes.draw do
   # Defines the root path route ("/")
   # root "posts#index"
 
-  post "/signup", to: "users#create"
-  post "/login", to: "users#login"
+
+  # Applied scope, now routes will automatically use .json request for json format response
+  scope defaults: { format: :json } do
+
+    post "/signup", to: "users#create"
+    post "/login", to: "users#login"
 
 
-  get "/users", to: "users#index"
+    get "/users", to: "users#index"
 
-  get "/users/specific", to: "users#show"
+    get "/users/specific", to: "users#show"
 
-  patch "/users/assign-role", to: "users#assign_roles"
+    patch "/users/assign-role", to: "users#assign_roles"
 
-  post "/users", to: "users#create"
+    post "/users", to: "users#create"
 
-  patch "/users", to: "users#update"
+    patch "/users", to: "users#update"
 
-  delete "/users", to: "users#destroy"
-
-
-  # get "/tickets/open", to: "tickets#open"
-
-  # get "/tickets/closed", to: "tickets#closed"
-
-  # get "/tickets/pending", to: "tickets#pending"
-
-  # get "/tickets/onhold", to: "tickets#onhold"
-
-  # get "/tickets/solved", to: "tickets#solved"
-
-  # get "/tickets/reopened", to: "tickets#reopened"
+    delete "/users", to: "users#destroy"
 
 
-  get "/tickets", to: "tickets#index"
+    # get "/tickets/open", to: "tickets#open"
 
-  get "/tickets/specific", to: "tickets#show"
+    # get "/tickets/closed", to: "tickets#closed"
 
-  post "/tickets", to: "tickets#create"
-  
-  patch "/tickets/assign-agent/", to: "tickets#assign_agent"
-  
-  patch "/tickets", to: "tickets#update"
+    # get "/tickets/pending", to: "tickets#pending"
 
-  delete "/tickets", to: "tickets#destroy"
+    # get "/tickets/onhold", to: "tickets#onhold"
+
+    # get "/tickets/solved", to: "tickets#solved"
+
+    # get "/tickets/reopened", to: "tickets#reopened"
 
 
+    get "/tickets", to: "tickets#index"
+
+    get "/tickets/specific", to: "tickets#show"
+
+    post "/tickets", to: "tickets#create"
+    
+    patch "/tickets/assign-agent/", to: "tickets#assign_agent"
+    
+    patch "/tickets", to: "tickets#update"
+
+    delete "/tickets", to: "tickets#destroy"
+
+  end
 
   # resources :users do
   #   resources :tickets

@@ -78,9 +78,11 @@ class TicketsController < ApplicationController
       @ticket = Ticket.find_by(id: params[:id])
       permitted_params = params.permit(:status)
     elsif @current_user.role == "agent"
+      # pp "agent========"
       @ticket = @current_user.tickets.find_by(id: params[:id])
+      # pp @ticket
       permitted_params = params.permit(:status)
-    else
+    elsif @current_user.role == "user"
       @ticket = @current_user.tickets.find_by(id: params[:id])
       # permitted_params = params.permit(ticket_params)
       permitted_params = params.permit(:title, :description, :priority)
@@ -94,7 +96,6 @@ class TicketsController < ApplicationController
     if @ticket.update( permitted_params )
       render ticket: @ticket, status: :ok
     else
-      # render json: { message: "Ticket not found"}, status: :unprocessable_entity
       render json: { message: @ticket.errors.full_messages }, status: :unprocessable_entity
     end
   end
@@ -157,7 +158,7 @@ class TicketsController < ApplicationController
     if @current_user.role == "admin"
       @ticket = Ticket.find_by(id: params[:id])
     elsif @current_user.role == "agent"
-      @ticket = @current_user.tickets.find_by(id: params[:id])
+      @ticket = Ticket.find_by(assigned_to: params[:id])
     else 
       @ticket = @current_user.tickets.find_by(id: params[:id])
     end

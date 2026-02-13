@@ -24,6 +24,7 @@ class Ticket < ApplicationRecord
   scope :by_status, ->(params){ where(status: params[:status]) }
   # scope :by_priority, -> (priority){ where(priority: priority)}
   scope :by_order, ->(params) {
+    # newest -> descending; oldest -> ascending
     filter = params[:sort] == "newest" ? :desc : :asc
     order(created_at: filter)
   }
