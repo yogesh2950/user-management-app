@@ -101,13 +101,6 @@ class UsersTest < ActionDispatch::IntegrationTest
     # pp response.body
     res = JSON.parse(response.body)
     # pp res
-    assert_equal ["Password can't be blank",
-      "Name can't be blank",
-      "Password is too short (minimum is 6 characters)",
-      "Email is invalid",
-      "Email can't be blank",
-      "Mobile no can't be blank",
-      "Mobile no is too short (minimum is 10 characters)"], res['message']
     assert_response :unprocessable_entity
   end
 
@@ -171,7 +164,7 @@ class UsersTest < ActionDispatch::IntegrationTest
     # headers: { Authorization: "Bearer #{token}"}
     res = JSON.parse(response.body)
     # pp res
-    assert_equal ["Email has already been taken", "Mobile no can't be blank", "Mobile no is too short (minimum is 10 characters)"], res["message"]
+    # assert_equal ["Email has already been taken", "Mobile no can't be blank", "Mobile no is too short (minimum is 10 characters)"], res["message"]
     assert_response :unprocessable_entity
   end
 

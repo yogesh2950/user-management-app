@@ -10,18 +10,25 @@ class UsersController < ApplicationController
     else
       render json: { message: "You're not allowed for this operation" }, status: :forbidden
     end
-    # render :show
+
+    # result = IndexUser.new().call(@current_user)
+    # # pp result
+    # @users = result
+    # if result[:success] 
+    #   render json: @users, status: :ok
+    # else
+    #   render json: { message: "You're not allowed for this operation" }, status: :forbidden
+    # end
+
   end
 
 
   # To change roles if admin exist
   def assign_roles
-    # pp "eeeeeee"
-    if @current_user.role == "admin"
-      # pp @current_user
+    return render json: { message: "You are not authorised!" }, status: :unauthorized if @current_user.role != "admin"
+        
       @user = User.find_by(id: assign_roles_params[:id])
 
-      # pp @user
       unless @user.present?
         render json: { status: false, message: "User Not Found" }
         return
@@ -31,19 +38,18 @@ class UsersController < ApplicationController
         render json: { message: "Admin cannot change own role." }, status: :forbidden
         return
       end
-      # pp @user
+
       if @user.update( assign_roles_params )
         # render @user, status: :ok
         render json: @user, status: :ok
       else
         render json: { message: @user.errors.full_messages }, status: :unprocessable_entity
       end
-    else
-      # pp "errorrrrrrrrrrrrrrr"
-      render json: { message: "You are not authorised!" }, status: :unauthorized
-    end
+      
+    # else
+    #   render json: { message: "You are not authorised!" }, status: :unauthorized
+    # end    
   end
-
 
 
   def show
@@ -56,20 +62,25 @@ class UsersController < ApplicationController
 
     # @user = User.new(user_params)
     # pp "=====user#{@user}==============="
+    
     if @user.save
-      # pp @user
       render json: @user, status: :created
     else
       render json: { message: @user.errors.full_messages }, status: :unprocessable_entity
     end
+    
+    # result = CreateUser.new().call(user_params)
+    # # pp result
+    # if result[:success]
+    #   render json: result, status: :created
+    # else
+    #   render json: {message: "User not created"}, status: :unprocessable_entity
+    # end
+
   end
 
   def login
-    # pp login_params
-
     user = User.find_by(email: login_params[:email])
-    # pp"==========after user=" 
-    # pp user
 
     unless user.present?
       render json: { message: "Invalid email or password" }, status: :unauthorized
@@ -114,8 +125,6 @@ class UsersController < ApplicationController
   end
 
   def destroy
-    # pp @user
-
     if @user.role == "admin"
       render json: { message: "You cannot deactivate an administrator account." },
       status: :forbidden
@@ -136,12 +145,10 @@ class UsersController < ApplicationController
 
   def set_user
     @user = User.find_by(id: params[:id])
-    # pp @user.is_active
     unless @user.present?
       render json: { status: false, message: "User Not Found" }
       return
     end
-    # pp "===================="
     unless @user.is_active == true
       render json: { message: "User is deactivated", status: false}
       return
@@ -149,7 +156,7 @@ class UsersController < ApplicationController
   end
 
   def update_user_params
-    params.permit(:name, :email, :mobile_no, :city)
+    params.permit(:name, :email, :mobile_no, :city, :password, :password_confirmation)
   end
 
   def login_params

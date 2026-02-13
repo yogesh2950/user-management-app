@@ -56,16 +56,16 @@ class TicketsController < ApplicationController
     @ticket = @current_user.tickets.new( ticket_params )
     @ticket.created_by = @current_user.id
     if @ticket.save
-      # pp @ticket
       render ticket: @ticket, status: :created
     else
-      # pp "====="
       render json: {message: @ticket.errors.full_messages}, status: :unprocessable_entity
     end
   end
 
   def update
     
+    # user can see only his ; admin sees all
+
     # if @current_user.role == "admin" || @current_user.role == "agent"
     #   @ticket = Ticket.find_by(id: params[:id])
     #   permitted_params = params.permit(:status)
@@ -78,11 +78,12 @@ class TicketsController < ApplicationController
       @ticket = Ticket.find_by(id: params[:id])
       permitted_params = params.permit(:status)
     elsif @current_user.role == "agent"
+      # pp "agent========"
       @ticket = @current_user.tickets.find_by(id: params[:id])
+      # pp @ticket
       permitted_params = params.permit(:status)
-    else
+    elsif @current_user.role == "user"
       @ticket = @current_user.tickets.find_by(id: params[:id])
-      # pp "on"
       # permitted_params = params.permit(ticket_params)
       permitted_params = params.permit(:title, :description, :priority)
     end
@@ -95,10 +96,10 @@ class TicketsController < ApplicationController
     if @ticket.update( permitted_params )
       render ticket: @ticket, status: :ok
     else
-      # render json: { message: "Ticket not found"}, status: :unprocessable_entity
       render json: { message: @ticket.errors.full_messages }, status: :unprocessable_entity
     end
   end
+
 
   def destroy
     unless @current_user.role == "admin"
@@ -113,8 +114,8 @@ class TicketsController < ApplicationController
     end
   end
 
-  def assign_agent
-    # I have to update 
+
+  def assign_agent 
     unless @current_user.role == "admin"
       render json: {message: "Only admins can assign tickets. You don't have permission!"}, status: :forbidden
       return
@@ -135,6 +136,7 @@ class TicketsController < ApplicationController
       render json: { message: "Only agents require!" }, status: :forbidden
       return
     end
+
     @ticket.is_assigned  = true
     if @ticket.update( assigned_to: @agent.id )
       render json: @ticket, status: :ok
@@ -142,6 +144,7 @@ class TicketsController < ApplicationController
       render json: { message: @ticket.errors.full_messages }, status: :unprocessable_entity
     end
   end
+
 
   private
 
@@ -155,7 +158,7 @@ class TicketsController < ApplicationController
     if @current_user.role == "admin"
       @ticket = Ticket.find_by(id: params[:id])
     elsif @current_user.role == "agent"
-      @ticket = @current_user.tickets.find_by(id: params[:id])
+      @ticket = Ticket.find_by(assigned_to: params[:id])
     else 
       @ticket = @current_user.tickets.find_by(id: params[:id])
     end

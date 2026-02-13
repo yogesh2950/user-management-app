@@ -1,6 +1,6 @@
 class User < ApplicationRecord
   has_secure_password
-  has_many :tickets, dependent: :destroy
+  has_many :tickets   
 
   enum :role, {
     user:  "user",
@@ -8,13 +8,11 @@ class User < ApplicationRecord
     agent: "agent"
   }
 
-  validates :name, presence: true
+  validates :name, presence: true, format: { with: /\A[a-zA-Z\s]+\z/, message: "only allows letters and spaces" }
 
   validates :password, presence: true, length: { in: 6..15 }, on: :create
 
   validates :email, format: { with: /\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\z/i }, presence: true, uniqueness: true
 
-  # validates :email, presence: true, uniqueness: true, format: { with: URI::MailTo::EMAIL_REGEXP }
-  validates :mobile_no, presence: true, length: { minimum: 10, maximum: 12 }
-  # validates :city
+  validates :mobile_no, presence: true, length: { minimum: 10, maximum: 12 }, numericality: true
 end
