@@ -28,6 +28,14 @@ Rails.application.configure do
   # Change to :null_store to avoid any caching.
   config.cache_store = :memory_store
 
+  # Changed to make API Only Application
+  # To render debugging information preserving the response format (default for API only)
+  config.debug_exception_response_format = :api
+
+  # To render an HTML page with debugging information
+  # config.debug_exception_response_format = :default
+
+
   # Store uploaded files on the local file system (see config/storage.yml for options).
   config.active_storage.service = :local
 

@@ -1,5 +1,5 @@
 class UsersController < ApplicationController
-  skip_before_action :verify_authenticity_token # this is to remove csrf token missing warning
+  # skip_before_action :verify_authenticity_token # this is to remove csrf token missing warning
   before_action :set_user, only: [ :show, :update, :destroy ]
   before_action :check_valid_user, except: [:index, :create, :login, :assign_roles]
   skip_before_action :authorize_request, only: [ :create, :login ]

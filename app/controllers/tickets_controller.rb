@@ -1,5 +1,5 @@
 class TicketsController < ApplicationController
-  skip_before_action :verify_authenticity_token # this is to remove csrf token missing warning
+  # skip_before_action :verify_authenticity_token # this is to remove csrf token missing warning
   before_action :set_ticket, only: [ :show, :destroy ]
 
   def index
