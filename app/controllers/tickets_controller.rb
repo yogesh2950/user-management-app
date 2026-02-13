@@ -155,9 +155,9 @@ class TicketsController < ApplicationController
 
   def set_ticket
     # user can see only his ; admin sees all
-    if @current_user.role == "admin"
+    if @current_user.is_admin?
       @ticket = Ticket.find_by(id: params[:id])
-    elsif @current_user.role == "agent"
+    elsif @current_user.is_agent?
       @ticket = Ticket.find_by(assigned_to: params[:id])
     else 
       @ticket = @current_user.tickets.find_by(id: params[:id])

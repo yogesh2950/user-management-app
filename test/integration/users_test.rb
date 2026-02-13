@@ -34,12 +34,82 @@ class UsersTest < ActionDispatch::IntegrationTest
     # pp response.body
     res = JSON.parse(response.body)
     # pp res
-    assert_equal "yogesh", res['name']
-    assert_equal "yogeshmm1@gmail.com", res['email']
-    # assert_equal "1234567", res['password_digest']  # stored digested Password Not the integer 
-    assert_equal "3456789013", res['mobile_no']
-    assert_equal "pune", res['city']
+    assert_equal "yogesh", res["name"]
+    assert_equal "yogeshmm1@gmail.com", res["email"]
+    # assert_equal "1234567", res["password_digest"]  # stored digested Password Not the integer 
+    assert_equal "3456789013", res["mobile_no"]
+    assert_equal "pune", res["city"]
     assert_response :created
+  end
+
+  test "Should not include special characters in name" do
+    post "/users", 
+    params:{
+      name: "yogesh#",
+      email: "yogeshmm1@gmail.com",
+      password: "1234567",
+      password_confirmation: "1234567",
+      mobile_no: 3456789013,
+      city: "pune"
+    }
+    # pp response.body
+    res = JSON.parse(response.body)
+    # pp res
+    assert_equal ["Name only allows letters and spaces"], res["message"]
+    assert_response :unprocessable_entity
+  end
+
+  test "Should not include special characters in mobile_no" do
+    post "/users", 
+    params:{
+      name: "yogesh",
+      email: "yogeshmm1@gmail.com",
+      password: "1234567",
+      password_confirmation: "1234567",
+      mobile_no: "345678901@",
+      city: "pune"
+    }
+    # pp response.body
+    res = JSON.parse(response.body)
+    # pp res
+    assert_equal ["Mobile no is not a number"], res["message"]
+    assert_response :unprocessable_entity
+  end
+
+  test "should not create user if Email Format is wrong" do
+    post "/users", 
+    params:{
+      name: "yogesh",
+      email: "yogesh1#gmail.com",
+      password: "1234567",
+      password_confirmation: "1234567",
+      mobile_no: "3456789013",
+      city: "pune"
+    }
+    # pp response.body
+    res = JSON.parse(response.body)
+    # pp res
+    assert_equal ["Email is invalid"], res["message"]
+    assert_response :unprocessable_entity
+  end
+
+  test "should ignore extra params while creating user" do
+    post "/users", 
+    params:{
+      name: "yogesh",
+      email: "yogeshmm1@gmail.com",
+      password: "1234567",
+      password_confirmation: "1234567",
+      mobile_no: 3456789013,
+      role: "admin",
+      is_active: false,
+      city: "pune"
+    }
+    # pp response.body
+    res = JSON.parse(response.body)
+    assert_equal "user", res["role"]
+    assert_equal true, res["is_active"]
+    pp res 
   end
 
   test "should get all users" do
@@ -196,16 +266,17 @@ class UsersTest < ActionDispatch::IntegrationTest
 
 
   # check returns me login successfull
-  # test "should not access in_activated user" do
-  #   # pp response.body
-  #   get "/users/2.json", params:{},
-  #   headers: { Authorization: "Bearer #{token}" }
-  #   pp response.body
-  #   res = JSON.parse(response.body)
-  #   pp res
-  #   assert_equal "Your account has been deactivated. Please contact admin.", res["message"]
-  #   # assert_response :unauthorized
-  # end
+  test "should not access in_activated user" do
+    patch "/users.json", params:{
+      id: 5
+    },
+    headers: { Authorization: "Bearer #{token}" }
+    # pp response.body
+    res = JSON.parse(response.body)
+    # pp res
+    assert_equal "Your account has been deactivated. Please contact admin.", res["message"]
+    # assert_response :unauthorized
+  end
 
   test "should get all users with invalid token" do
     get "/users.json", headers: { Authorization: "Bearer #{"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo5OTksInRlbXBvcmFyeXRlc3RpbmciOiJoZWxsbyJ9.b_kAhcLSGeV_cs84xS6KAbczNB_he24QESNcWEqecAQ"}" }

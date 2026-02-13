@@ -15,4 +15,19 @@ class User < ApplicationRecord
   validates :email, format: { with: /\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\z/i }, presence: true, uniqueness: true
 
   validates :mobile_no, presence: true, length: { minimum: 10, maximum: 12 }, numericality: true
+
+  private
+
+  def is_admin?
+    # current_user.role == "admin"
+    self.role == "admin"
+  end
+
+  def is_user?
+    self.role == "user"
+  end
+
+  def is_agent?
+    self.role == "agent"
+  end
 end

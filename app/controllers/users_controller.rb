@@ -150,7 +150,7 @@ class UsersController < ApplicationController
       return
     end
     unless @user.is_active == true
-      render json: { message: "User is deactivated", status: false}
+      render json: { message: "Your account has been deactivated. Please contact admin.", status: false}
       return
     end
   end
