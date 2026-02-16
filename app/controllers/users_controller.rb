@@ -5,7 +5,7 @@ class UsersController < ApplicationController
   skip_before_action :authorize_request, only: [ :create, :login ]
 
   def index
-    if @current_user.role == "admin"
+    if @current_user.is_admin?
       @users = User.all
     else
       render json: { message: "You're not allowed for this operation" }, status: :forbidden
@@ -125,7 +125,7 @@ class UsersController < ApplicationController
   end
 
   def destroy
-    if @user.role == "admin"
+    if @user.is_admin?
       render json: { message: "You cannot deactivate an administrator account." },
       status: :forbidden
       return
@@ -140,7 +140,8 @@ class UsersController < ApplicationController
     end
   end
 
-
+  # To Activate user make a new route!
+  # Upcoming feature
   private
 
   def set_user

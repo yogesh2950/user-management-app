@@ -16,7 +16,6 @@ class User < ApplicationRecord
 
   validates :mobile_no, presence: true, length: { minimum: 10, maximum: 12 }, numericality: true
 
-  private
 
   def is_admin?
     # current_user.role == "admin"

@@ -28,5 +28,6 @@ ticket_3:
   priority: 0
   user_id: 3
   assigned_to: 3
-  is_assigned: false
+  is_assigned: true
   created_by: 3
+  is_approval_required: false

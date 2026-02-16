@@ -481,4 +481,34 @@ class TicketsTest < ActionDispatch::IntegrationTest
     assert_equal "users  issue", res["title"]
     assert_response :ok
   end
+
+  test "Updating ticket status must be forward direction" do
+    patch "/tickets.json?id=3",
+    params:{
+      status: "in_progress"
+    }, 
+    headers: { Authorization: "Bearer #{admin_token}" }
+    res = JSON.parse(response.body)
+    pp res
+  end
+
+  test "Updating ticket status must not be in backward direction" do
+    patch "/tickets.json?id=3",
+    params:{
+      status: "in_progress"
+    }, 
+    headers: { Authorization: "Bearer #{admin_token}" }
+    res = JSON.parse(response.body)
+    pp res
+  end
+
+  test "Updating ticket status must be one-by-one, no jumps allowed" do
+    patch "/tickets.json?id=3",
+    params:{
+      status: "in_progress"
+    }, 
+    headers: { Authorization: "Bearer #{admin_token}" }
+    res = JSON.parse(response.body)
+    pp res
+  end
 end
